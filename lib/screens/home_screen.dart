@@ -120,6 +120,7 @@ class _HomeScreenState extends State<HomeScreen> {
       floatingActionButton: context.watch<Audio>().currentUrl.isEmpty
           ? null
           : FloatingActionButton(
+              autofocus: true,
               backgroundColor: kPlayerActiveColor,
               child: Icon(
                 context.watch<Audio>().playerState == PlayerState.PLAYING
@@ -147,7 +148,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: Container(
                   height: 80.0,
                   decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(35),
+                    borderRadius: BorderRadius.only(
+                      topLeft: Radius.circular(35),
+                      topRight: Radius.circular(35),
+                    ),
                     color: Color(0xff3C225C),
                   ),
                   child: Row(
