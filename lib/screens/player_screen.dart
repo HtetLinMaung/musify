@@ -64,6 +64,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               children: <Widget>[
                 Slider(
                   activeColor: kPlayerActiveColor,
+                  inactiveColor: Color(0xff402660),
                   min: 0,
                   max:
                       context.watch<Audio>().duration.inSeconds.roundToDouble(),
@@ -110,7 +111,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                         store.setTrackState(TrackState.SHUFFLE);
                         break;
                       case TrackState.SHUFFLE:
-                        store.setTrackState(TrackState.SINGLE);
+                        store.setTrackState(TrackState.REPEAT);
                         break;
                       default:
                         store.setTrackState(TrackState.LOOP);

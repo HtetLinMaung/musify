@@ -9,7 +9,7 @@ class Audio with ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   List<Music> _musicList = [];
   String _currentUrl = '';
-  PlayerState _playerState;
+  PlayerState _playerState = PlayerState.STOPPED;
   TrackState _trackState = TrackState.LOOP;
   Duration _duration = Duration(seconds: 0);
   Duration _position = Duration(seconds: 0);
@@ -25,7 +25,11 @@ class Audio with ChangeNotifier {
       } else if (s == AudioPlayerState.COMPLETED) {
         _position = _duration;
         _playerState = PlayerState.COMPLETED;
-        next();
+        if (_trackState == TrackState.REPEAT) {
+          stopAndPlay(_currentUrl);
+        } else {
+          next();
+        }
       }
 
       notifyListeners();
@@ -43,6 +47,7 @@ class Audio with ChangeNotifier {
   Duration get duration => _duration;
   Duration get position => _position;
   bool get muted => _muted;
+  String get currentUrl => _currentUrl;
 
   void mute() {
     _muted = !_muted;
@@ -85,7 +90,7 @@ class Audio with ChangeNotifier {
   void next() {
     _position = Duration(seconds: 0);
     var index = _musicList.indexOf(getCurrentMusic());
-    if (_trackState == TrackState.LOOP) {
+    if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
       if (index == _musicList.length - 1) {
         index = 0;
       } else {
@@ -100,7 +105,7 @@ class Audio with ChangeNotifier {
   void previous() {
     _position = Duration(seconds: 0);
     var index = _musicList.indexOf(getCurrentMusic());
-    if (_trackState == TrackState.LOOP) {
+    if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
       if (index == 0) {
         index = _musicList.length - 1;
       } else {

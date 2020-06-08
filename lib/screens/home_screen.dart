@@ -7,6 +7,7 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:music_player/components/music_tile.dart';
 import 'package:music_player/models/music.dart';
 import 'package:provider/provider.dart';
+import 'package:music_player/screens/player_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -52,10 +53,12 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       body: SafeArea(
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: <Widget>[
             Padding(
               padding: const EdgeInsets.all(15.0),
               child: TextField(
+                autofocus: false,
                 onChanged: (v) {
                   final store = context.read<Audio>();
                   setState(() {
@@ -114,6 +117,72 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
+      floatingActionButton: context.watch<Audio>().currentUrl.isEmpty
+          ? null
+          : FloatingActionButton(
+              backgroundColor: kPlayerActiveColor,
+              child: Icon(
+                context.watch<Audio>().playerState == PlayerState.PLAYING
+                    ? Icons.pause
+                    : Icons.play_arrow,
+                color: Colors.white,
+              ),
+              onPressed: () {
+                final store = context.read<Audio>();
+                if (store.playerState == PlayerState.PLAYING) {
+                  store.pause();
+                } else {
+                  store.resume();
+                }
+              },
+            ),
+      bottomNavigationBar: context.watch<Audio>().currentUrl.isEmpty
+          ? null
+          : BottomAppBar(
+              color: kBackgroundColor,
+              child: GestureDetector(
+                onTap: () {
+                  Navigator.pushNamed(context, PlayerScreen.routeName);
+                },
+                child: Container(
+                  height: 80.0,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(35),
+                    color: Color(0xff3C225C),
+                  ),
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                    children: <Widget>[
+                      IconButton(
+                        color: kPlayerIconColor,
+                        icon: Icon(Icons.skip_previous),
+                        onPressed: () {
+                          context.read<Audio>().previous();
+                        },
+                      ),
+                      Expanded(
+                        child: Text(
+                          context.watch<Audio>().getCurrentMusic().title,
+                          overflow: TextOverflow.ellipsis,
+                          textAlign: TextAlign.center,
+                          style: TextStyle(
+                            color: Color(0xffEBE2F4),
+                          ),
+                        ),
+                      ),
+                      IconButton(
+                        color: kPlayerIconColor,
+                        icon: Icon(Icons.skip_next),
+                        onPressed: () {
+                          context.read<Audio>().next();
+                        },
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
