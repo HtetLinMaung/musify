@@ -3,6 +3,8 @@ import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/constant.dart';
 import 'package:flutter/services.dart';
+import 'package:music_player/components/next_button.dart';
+import 'package:music_player/components/prev_button.dart';
 
 class PlayerScreen extends StatefulWidget {
   static const routeName = 'PlayerScreen';
@@ -64,7 +66,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
               children: <Widget>[
                 Slider(
                   activeColor: kPlayerActiveColor,
-                  inactiveColor: Color(0xff402660),
+                  inactiveColor: kInActiveColor,
                   min: 0,
                   max:
                       context.watch<Audio>().duration.inSeconds.roundToDouble(),
@@ -118,13 +120,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     }
                   },
                 ),
-                IconButton(
-                  color: kPlayerIconColor,
-                  icon: Icon(Icons.skip_previous),
-                  onPressed: () {
-                    context.read<Audio>().previous();
-                  },
-                ),
+                PrevButton(),
                 Ink(
                   decoration: const ShapeDecoration(
                     shape: CircleBorder(),
@@ -150,13 +146,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     ),
                   ),
                 ),
-                IconButton(
-                  color: kPlayerIconColor,
-                  icon: Icon(Icons.skip_next),
-                  onPressed: () {
-                    context.read<Audio>().next();
-                  },
-                ),
+                NextButton(),
                 IconButton(
                   color: kPlayerIconColor,
                   icon: Icon(!context.watch<Audio>().muted

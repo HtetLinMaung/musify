@@ -6,5 +6,7 @@ const kInputFillColor = Color(0xff3C225C);
 // const kPlayerActiveColor = Color(0xffFE17CD);
 const kPlayerActiveColor = Color(0xffAC89C6);
 const kPlayerIconColor = Color(0xffE5BBFF);
+const kFavColor = Color(0xffFF16CD);
+const kInActiveColor = Color(0xff402660);
 enum PlayerState { PLAYING, PAUSED, COMPLETED, STOPPED }
 enum TrackState { SHUFFLE, LOOP, REPEAT }

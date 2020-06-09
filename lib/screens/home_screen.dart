@@ -7,7 +7,8 @@ import 'package:permission_handler/permission_handler.dart';
 import 'package:music_player/components/music_tile.dart';
 import 'package:music_player/models/music.dart';
 import 'package:provider/provider.dart';
-import 'package:music_player/screens/player_screen.dart';
+import 'package:music_player/components/floating_button.dart';
+import 'package:music_player/components/bottom_navbar.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -101,9 +102,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     return MusicTile(
                       title: _musics[i].title,
                       musicUrl: _musics[i].url,
-                      favIconColor: !_musics[i].favorite
-                          ? Color(0xff3C225C)
-                          : Color(0xffFF16CD),
+                      favIconColor:
+                          !_musics[i].favorite ? Color(0xff3C225C) : kFavColor,
                       iconPressed: () {
                         setState(() {
                           _musics[i].favorite = !_musics[i].favorite;
@@ -117,75 +117,10 @@ class _HomeScreenState extends State<HomeScreen> {
           ],
         ),
       ),
-      floatingActionButton: context.watch<Audio>().currentUrl.isEmpty
-          ? null
-          : FloatingActionButton(
-              autofocus: true,
-              backgroundColor: kPlayerActiveColor,
-              child: Icon(
-                context.watch<Audio>().playerState == PlayerState.PLAYING
-                    ? Icons.pause
-                    : Icons.play_arrow,
-                color: Colors.white,
-              ),
-              onPressed: () {
-                final store = context.read<Audio>();
-                if (store.playerState == PlayerState.PLAYING) {
-                  store.pause();
-                } else {
-                  store.resume();
-                }
-              },
-            ),
-      bottomNavigationBar: context.watch<Audio>().currentUrl.isEmpty
-          ? null
-          : BottomAppBar(
-              color: kBackgroundColor,
-              child: GestureDetector(
-                onTap: () {
-                  Navigator.pushNamed(context, PlayerScreen.routeName);
-                },
-                child: Container(
-                  height: 80.0,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.only(
-                      topLeft: Radius.circular(35),
-                      topRight: Radius.circular(35),
-                    ),
-                    color: Color(0xff3C225C),
-                  ),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                    children: <Widget>[
-                      IconButton(
-                        color: kPlayerIconColor,
-                        icon: Icon(Icons.skip_previous),
-                        onPressed: () {
-                          context.read<Audio>().previous();
-                        },
-                      ),
-                      Expanded(
-                        child: Text(
-                          context.watch<Audio>().getCurrentMusic().title,
-                          overflow: TextOverflow.ellipsis,
-                          textAlign: TextAlign.center,
-                          style: TextStyle(
-                            color: Color(0xffEBE2F4),
-                          ),
-                        ),
-                      ),
-                      IconButton(
-                        color: kPlayerIconColor,
-                        icon: Icon(Icons.skip_next),
-                        onPressed: () {
-                          context.read<Audio>().next();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
+      floatingActionButton:
+          context.watch<Audio>().currentUrl.isEmpty ? null : FloatingButton(),
+      bottomNavigationBar:
+          context.watch<Audio>().currentUrl.isEmpty ? null : BottomNavbar(),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
