@@ -33,6 +33,7 @@ dependencies:
   font_awesome_flutter: ^8.8.1
   percent_indicator: ^2.1.4
   marquee: ^1.5.2
+  move_to_background: ^1.0.1
 
 dev_dependencies:
   flutter_test:

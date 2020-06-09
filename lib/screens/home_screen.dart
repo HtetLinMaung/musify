@@ -9,6 +9,7 @@ import 'package:music_player/models/music.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/components/floating_button.dart';
 import 'package:music_player/components/bottom_navbar.dart';
+import 'package:move_to_background/move_to_background.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -23,6 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
+
     _getLocalMusic();
   }
 
@@ -51,77 +53,84 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: SafeArea(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: <Widget>[
-            Padding(
-              padding: const EdgeInsets.all(15.0),
-              child: TextField(
-                autofocus: false,
-                onChanged: (v) {
-                  final store = context.read<Audio>();
-                  setState(() {
-                    if (v.length > 0) {
-                      _musics = store.musicList
-                          .where((music) => music.title
-                              .contains(RegExp(v, caseSensitive: false)))
-                          .toList();
-                    } else {
-                      _musics = store.musicList;
-                    }
-                  });
-                },
-                decoration: InputDecoration(
-                  prefixIcon: Icon(
-                    Icons.search,
-                    color: kInputColor,
-                  ),
-                  hintText: 'Song or Artist',
-                  fillColor: kInputFillColor,
-                  filled: true,
-                  border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(20.0),
-                      borderSide: BorderSide(
-                        style: BorderStyle.none,
-                        width: 0,
-                      )),
-                  hintStyle: TextStyle(
-                    color: kInputColor,
-                  ),
-                ),
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8.0),
-                child: ListView.builder(
-                  itemCount: _musics.length,
-                  itemBuilder: (context, i) {
-                    return MusicTile(
-                      title: _musics[i].title,
-                      musicUrl: _musics[i].url,
-                      favIconColor:
-                          !_musics[i].favorite ? Color(0xff3C225C) : kFavColor,
-                      iconPressed: () {
-                        setState(() {
-                          _musics[i].favorite = !_musics[i].favorite;
-                        });
-                      },
-                    );
+    return WillPopScope(
+      onWillPop: () async {
+        MoveToBackground.moveTaskToBack();
+        return false;
+      },
+      child: Scaffold(
+        body: SafeArea(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: <Widget>[
+              Padding(
+                padding: const EdgeInsets.all(15.0),
+                child: TextField(
+                  autofocus: false,
+                  onChanged: (v) {
+                    final store = context.read<Audio>();
+                    setState(() {
+                      if (v.length > 0) {
+                        _musics = store.musicList
+                            .where((music) => music.title
+                                .contains(RegExp(v, caseSensitive: false)))
+                            .toList();
+                      } else {
+                        _musics = store.musicList;
+                      }
+                    });
                   },
+                  decoration: InputDecoration(
+                    prefixIcon: Icon(
+                      Icons.search,
+                      color: kInputColor,
+                    ),
+                    hintText: 'Song or Artist',
+                    fillColor: kInputFillColor,
+                    filled: true,
+                    border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(20.0),
+                        borderSide: BorderSide(
+                          style: BorderStyle.none,
+                          width: 0,
+                        )),
+                    hintStyle: TextStyle(
+                      color: kInputColor,
+                    ),
+                  ),
                 ),
               ),
-            ),
-          ],
+              Expanded(
+                child: Padding(
+                  padding: const EdgeInsets.all(8.0),
+                  child: ListView.builder(
+                    itemCount: _musics.length,
+                    itemBuilder: (context, i) {
+                      return MusicTile(
+                        title: _musics[i].title,
+                        musicUrl: _musics[i].url,
+                        favIconColor: !_musics[i].favorite
+                            ? Color(0xff3C225C)
+                            : kFavColor,
+                        iconPressed: () {
+                          setState(() {
+                            _musics[i].favorite = !_musics[i].favorite;
+                          });
+                        },
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
+        floatingActionButton:
+            context.watch<Audio>().currentUrl.isEmpty ? null : FloatingButton(),
+        bottomNavigationBar:
+            context.watch<Audio>().currentUrl.isEmpty ? null : BottomNavbar(),
+        floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
-      floatingActionButton:
-          context.watch<Audio>().currentUrl.isEmpty ? null : FloatingButton(),
-      bottomNavigationBar:
-          context.watch<Audio>().currentUrl.isEmpty ? null : BottomNavbar(),
-      floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
     );
   }
 }
