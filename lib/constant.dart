@@ -10,3 +10,4 @@ const kFavColor = Color(0xffFF16CD);
 const kInActiveColor = Color(0xff402660);
 enum PlayerState { PLAYING, PAUSED, COMPLETED, STOPPED }
 enum TrackState { SHUFFLE, LOOP, REPEAT }
+enum MusicView { LIST, ALBUMN }

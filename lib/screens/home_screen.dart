@@ -2,9 +2,10 @@ import 'dart:io';
 
 import 'package:flutter/material.dart';
 import 'package:music_player/constant.dart';
+import 'package:music_player/components/shuffle_row.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:permission_handler/permission_handler.dart';
-import 'package:music_player/components/music_tile.dart';
+import 'package:music_player/components/music_list.dart';
 import 'package:music_player/models/music.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/components/floating_button.dart';
@@ -20,6 +21,7 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   List<Music> _musics = [];
+  MusicView _view = MusicView.LIST;
 
   @override
   void initState() {
@@ -49,6 +51,18 @@ class _HomeScreenState extends State<HomeScreen> {
         Provider.of<Audio>(context, listen: false).setMusicList(_musics);
       });
     }
+  }
+
+  void _viewHandler() {
+    setState(() {
+      switch (_view) {
+        case MusicView.ALBUMN:
+          _view = MusicView.LIST;
+          break;
+        default:
+          _view = MusicView.ALBUMN;
+      }
+    });
   }
 
   @override
@@ -100,27 +114,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   ),
                 ),
               ),
-              Expanded(
-                child: Padding(
-                  padding: const EdgeInsets.all(8.0),
-                  child: ListView.builder(
-                    itemCount: _musics.length,
-                    itemBuilder: (context, i) {
-                      return MusicTile(
-                        title: _musics[i].title,
-                        musicUrl: _musics[i].url,
-                        favIconColor: !_musics[i].favorite
-                            ? Color(0xff3C225C)
-                            : kFavColor,
-                        iconPressed: () {
-                          setState(() {
-                            _musics[i].favorite = !_musics[i].favorite;
-                          });
-                        },
-                      );
-                    },
-                  ),
-                ),
+              ShuffleRow(
+                view: _view,
+                viewHandler: _viewHandler,
+              ),
+              MusicList(
+                musics: _musics,
               ),
             ],
           ),

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/screens/favorite_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:music_player/constant.dart';
@@ -24,6 +25,7 @@ class MusicPlayer extends StatelessWidget {
       routes: {
         HomeScreen.routeName: (context) => HomeScreen(),
         PlayerScreen.routeName: (context) => PlayerScreen(),
+        FavoriteScreen.routeName: (context) => FavoriteScreen(),
       },
     );
   }

@@ -5,20 +5,22 @@ import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 
 class MusicTile extends StatelessWidget {
-  const MusicTile({
-    Key key,
-    @required this.title,
-    this.subtitle,
-    this.musicUrl,
-    @required this.iconPressed,
-    this.favIconColor,
-  }) : super(key: key);
+  const MusicTile(
+      {Key key,
+      @required this.title,
+      this.subtitle,
+      this.musicUrl,
+      @required this.iconPressed,
+      this.favIconColor,
+      this.favPlay = false})
+      : super(key: key);
 
   final String title;
   final String subtitle;
   final String musicUrl;
   final Function iconPressed;
   final Color favIconColor;
+  final bool favPlay;
 
   @override
   Widget build(BuildContext context) {
@@ -45,7 +47,9 @@ class MusicTile extends StatelessWidget {
         onPressed: iconPressed,
       ),
       onTap: () {
-        context.read<Audio>().stopAndPlay(musicUrl);
+        final store = context.read<Audio>();
+        store.setFavorite(favPlay);
+        store.stopAndPlay(musicUrl);
         Navigator.pushNamed(context, PlayerScreen.routeName);
       },
     );

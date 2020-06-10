@@ -11,6 +11,7 @@ class Audio with ChangeNotifier {
   String _currentUrl = '';
   PlayerState _playerState = PlayerState.STOPPED;
   TrackState _trackState = TrackState.LOOP;
+  bool _favorite = false;
   Duration _duration = Duration(seconds: 0);
   Duration _position = Duration(seconds: 0);
   bool _muted = false;
@@ -48,6 +49,10 @@ class Audio with ChangeNotifier {
   Duration get position => _position;
   bool get muted => _muted;
   String get currentUrl => _currentUrl;
+
+  void setFavorite(bool f) {
+    _favorite = f;
+  }
 
   void mute() {
     _muted = !_muted;
@@ -87,34 +92,62 @@ class Audio with ChangeNotifier {
     return _audioPlayer.play(_currentUrl);
   }
 
+  List<Music> getFavorites() {
+    return _musicList.where((music) => music.favorite).toList();
+  }
+
   void next() {
     _position = Duration(seconds: 0);
-    var index = _musicList.indexOf(getCurrentMusic());
+    var musicList = _musicList;
+    var index = musicList.indexOf(getCurrentMusic());
+    if (_favorite) {
+      musicList = getFavorites();
+      index = musicList
+          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
+    }
     if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
-      if (index == _musicList.length - 1) {
+      if (index == musicList.length - 1) {
         index = 0;
       } else {
         index++;
       }
     } else if (_trackState == TrackState.SHUFFLE) {
-      index = Random().nextInt(_musicList.length);
+      index = Random().nextInt(musicList.length);
     }
-    stopAndPlay(_musicList[index].url);
+    stopAndPlay(musicList[index].url);
+  }
+
+  void shufflePlay({favorite = false}) {
+    _trackState = TrackState.SHUFFLE;
+    _favorite = favorite;
+
+    var musicList = _musicList;
+    if (favorite) {
+      musicList = musicList.where((music) => music.favorite).toList();
+    }
+    final index = Random().nextInt(musicList.length);
+    stopAndPlay(musicList[index].url);
   }
 
   void previous() {
     _position = Duration(seconds: 0);
-    var index = _musicList.indexOf(getCurrentMusic());
+    var musicList = _musicList;
+    var index = musicList.indexOf(getCurrentMusic());
+    if (_favorite) {
+      musicList = getFavorites();
+      index = musicList
+          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
+    }
     if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
       if (index == 0) {
-        index = _musicList.length - 1;
+        index = musicList.length - 1;
       } else {
         index--;
       }
     } else if (_trackState == TrackState.SHUFFLE) {
-      index = Random().nextInt(_musicList.length);
+      index = Random().nextInt(musicList.length);
     }
-    stopAndPlay(_musicList[index].url);
+    stopAndPlay(musicList[index].url);
   }
 
   Music getCurrentMusic() {
