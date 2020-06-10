@@ -11,6 +11,7 @@ import 'package:provider/provider.dart';
 import 'package:music_player/components/floating_button.dart';
 import 'package:music_player/components/bottom_navbar.dart';
 import 'package:move_to_background/move_to_background.dart';
+import 'package:music_player/database.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -36,12 +37,22 @@ class _HomeScreenState extends State<HomeScreen> {
       final musicUrlList = (await dir.list(recursive: true).toList())
           .where((entity) => entity.path.endsWith('.mp3'))
           .toList();
+      final favorites = await getData(table: 'favorites');
+      context.read<Audio>().setFavoriteListTemp(favorites);
 
       setState(() {
         _musics = musicUrlList.map((entity) {
           final pathArray = entity.path.split('/');
           final title = pathArray[pathArray.length - 1];
-          return Music(url: entity.path, title: title);
+          var favFlag = false;
+
+          for (var favorite in favorites) {
+            if (favorite.url == entity.path) {
+              favFlag = true;
+              break;
+            }
+          }
+          return Music(url: entity.path, title: title, favorite: favFlag);
         }).toList();
 
         _musics.sort((a, b) {

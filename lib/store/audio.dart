@@ -8,6 +8,7 @@ import 'package:music_player/constant.dart';
 class Audio with ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
   List<Music> _musicList = [];
+  List<Music> _favoriteListTemp = [];
   String _currentUrl = '';
   PlayerState _playerState = PlayerState.STOPPED;
   TrackState _trackState = TrackState.LOOP;
@@ -49,6 +50,11 @@ class Audio with ChangeNotifier {
   Duration get position => _position;
   bool get muted => _muted;
   String get currentUrl => _currentUrl;
+  List<Music> get favoriteListTemp => _favoriteListTemp;
+
+  void setFavoriteListTemp(List<Music> l) {
+    _favoriteListTemp = l;
+  }
 
   void setFavorite(bool f) {
     _favorite = f;
@@ -78,6 +84,7 @@ class Audio with ChangeNotifier {
   }
 
   void stopAndPlay(String url) {
+    _position = Duration(seconds: 0);
     _currentUrl = url;
     notifyListeners();
     _audioPlayer.stop();
@@ -97,7 +104,6 @@ class Audio with ChangeNotifier {
   }
 
   void next() {
-    _position = Duration(seconds: 0);
     var musicList = _musicList;
     var index = musicList.indexOf(getCurrentMusic());
     if (_favorite) {
@@ -130,7 +136,6 @@ class Audio with ChangeNotifier {
   }
 
   void previous() {
-    _position = Duration(seconds: 0);
     var musicList = _musicList;
     var index = musicList.indexOf(getCurrentMusic());
     if (_favorite) {

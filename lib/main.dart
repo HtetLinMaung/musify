@@ -15,7 +15,12 @@ void main() => runApp(MultiProvider(
       child: MusicPlayer(),
     ));
 
-class MusicPlayer extends StatelessWidget {
+class MusicPlayer extends StatefulWidget {
+  @override
+  _MusicPlayerState createState() => _MusicPlayerState();
+}
+
+class _MusicPlayerState extends State<MusicPlayer> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
