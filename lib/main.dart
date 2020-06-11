@@ -5,6 +5,7 @@ import 'package:music_player/store/audio.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/player_screen.dart';
+import 'screens/selection_screen.dart';
 
 void main() => runApp(MultiProvider(
       providers: [
@@ -31,6 +32,7 @@ class _MusicPlayerState extends State<MusicPlayer> {
         HomeScreen.routeName: (context) => HomeScreen(),
         PlayerScreen.routeName: (context) => PlayerScreen(),
         FavoriteScreen.routeName: (context) => FavoriteScreen(),
+        SelectionScreen.routeName: (context) => SelectionScreen(),
       },
     );
   }

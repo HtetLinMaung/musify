@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/components/music_list.dart';
 import 'package:music_player/constant.dart';
+import 'package:music_player/screens/selection_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:music_player/components/shuffle_row.dart';
 import 'package:music_player/components/floating_button.dart';
 import 'package:music_player/components/bottom_navbar.dart';
+import 'selection_screen.dart';
 
 class FavoriteScreen extends StatefulWidget {
   static const routeName = 'FavoriteScreen';
@@ -30,7 +32,9 @@ class FavoriteScreenState extends State<FavoriteScreen> {
         actions: <Widget>[
           IconButton(
             icon: Icon(Icons.add),
-            onPressed: () {},
+            onPressed: () {
+              Navigator.pushNamed(context, SelectionScreen.routeName);
+            },
           )
         ],
       ),
@@ -45,7 +49,7 @@ class FavoriteScreenState extends State<FavoriteScreen> {
           MusicList(
             favPlay: true,
             musics: store.musicList.where((music) => music.favorite).toList(),
-          )
+          ),
         ],
       ),
       floatingActionButton: store.currentUrl.isEmpty ? null : FloatingButton(),

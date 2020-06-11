@@ -5,6 +5,9 @@ import 'package:music_player/constant.dart';
 import 'package:flutter/services.dart';
 import 'package:music_player/components/next_button.dart';
 import 'package:music_player/components/prev_button.dart';
+import 'package:music_player/database.dart';
+import 'package:music_player/components/modal_sheet.dart';
+import 'package:music_player/components/edit_column.dart';
 
 class PlayerScreen extends StatefulWidget {
   static const routeName = 'PlayerScreen';
@@ -37,7 +40,11 @@ class _PlayerScreenState extends State<PlayerScreen> {
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,
     ]);
+
+    final store = context.watch<Audio>();
+
     return Scaffold(
+      backgroundColor: kPlayerBackground,
       body: SafeArea(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -55,7 +62,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 horizontal: 15.0,
               ),
               child: Text(
-                context.watch<Audio>().getCurrentMusic().title,
+                store.getCurrentMusic().title,
                 style: TextStyle(
                   fontSize: 24.0,
                 ),
@@ -68,10 +75,8 @@ class _PlayerScreenState extends State<PlayerScreen> {
                   activeColor: kPlayerActiveColor,
                   inactiveColor: kInActiveColor,
                   min: 0,
-                  max:
-                      context.watch<Audio>().duration.inSeconds.roundToDouble(),
-                  value:
-                      context.watch<Audio>().position.inSeconds.roundToDouble(),
+                  max: store.duration.inSeconds.roundToDouble(),
+                  value: store.position.inSeconds.roundToDouble(),
                   onChanged: (v) {
                     context.read<Audio>().seek(v);
                   },
@@ -82,15 +87,13 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: <Widget>[
                       Text(
-                        formatDurationString(
-                            context.watch<Audio>().position.toString()),
+                        formatDurationString(store.position.toString()),
                         style: TextStyle(
                           color: kPlayerIconColor,
                         ),
                       ),
                       Text(
-                        formatDurationString(
-                            context.watch<Audio>().duration.toString()),
+                        formatDurationString(store.duration.toString()),
                         style: TextStyle(
                           color: kPlayerIconColor,
                         ),
@@ -131,8 +134,7 @@ class _PlayerScreenState extends State<PlayerScreen> {
                     height: 70,
                     child: IconButton(
                       iconSize: 25.0,
-                      icon: Icon(context.watch<Audio>().playerState ==
-                              PlayerState.PLAYING
+                      icon: Icon(store.playerState == PlayerState.PLAYING
                           ? Icons.pause
                           : Icons.play_arrow),
                       onPressed: () {
@@ -149,14 +151,72 @@ class _PlayerScreenState extends State<PlayerScreen> {
                 NextButton(),
                 IconButton(
                   color: kPlayerIconColor,
-                  icon: Icon(!context.watch<Audio>().muted
-                      ? Icons.volume_up
-                      : Icons.volume_off),
+                  icon: Icon(!store.muted ? Icons.volume_up : Icons.volume_off),
                   onPressed: () {
                     context.read<Audio>().mute();
                   },
                 )
               ],
+            ),
+            Container(
+              decoration: BoxDecoration(
+                color: Color(0xff260F42),
+                borderRadius: BorderRadius.circular(30.0),
+              ),
+              padding: EdgeInsets.symmetric(
+                vertical: 16.0,
+              ),
+              margin: EdgeInsets.symmetric(
+                horizontal: 18.0,
+              ),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: <Widget>[
+                  IconButton(
+                    onPressed: () {
+                      showModalBottomSheet(
+                        context: context,
+                        builder: (BuildContext context) {
+                          return ModalSheet(
+                            child: EditColumn(),
+                            height: 300,
+                          );
+                        },
+                      );
+                    },
+                    icon: Icon(
+                      Icons.more_horiz,
+                      color: kPlayerIconColor,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {},
+                    icon: Icon(
+                      Icons.playlist_play,
+                      color: kPlayerIconColor,
+                    ),
+                  ),
+                  IconButton(
+                    onPressed: () {
+                      final store = context.read<Audio>();
+                      store.getCurrentMusic().favorite =
+                          !store.getCurrentMusic().favorite;
+                      final music = store.getCurrentMusic();
+                      if (music.favorite) {
+                        insert(music: music, table: 'favorites');
+                      } else {
+                        delete(url: music.url, table: 'favorites');
+                      }
+                    },
+                    icon: Icon(
+                      Icons.favorite,
+                      color: store.getCurrentMusic().favorite
+                          ? kFavColor
+                          : kPlayerIconColor,
+                    ),
+                  ),
+                ],
+              ),
             ),
           ],
         ),

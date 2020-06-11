@@ -20,7 +20,7 @@ final Future<Database> database = getDatabase();
 
 Future<void> insert({Music music, String table}) async {
   final Database db = await database;
-  print('insert');
+
   await db.insert(
     table,
     music.toMap(),
@@ -42,12 +42,12 @@ Future<List<Music>> getData({String table}) async {
   });
 }
 
-Future<void> delete({int id, String table}) async {
+Future<void> delete({String url, String table}) async {
   final db = await database;
 
   await db.delete(
     table,
-    where: "id = ?",
-    whereArgs: [id],
+    where: "url = ?",
+    whereArgs: [url],
   );
 }

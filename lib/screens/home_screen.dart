@@ -21,8 +21,8 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-  List<Music> _musics = [];
   MusicView _view = MusicView.LIST;
+  String _search = '';
 
   @override
   void initState() {
@@ -41,25 +41,29 @@ class _HomeScreenState extends State<HomeScreen> {
       context.read<Audio>().setFavoriteListTemp(favorites);
 
       setState(() {
-        _musics = musicUrlList.map((entity) {
+        final musics = musicUrlList.map((entity) {
           final pathArray = entity.path.split('/');
           final title = pathArray[pathArray.length - 1];
-          var favFlag = false;
 
+          var favFlag = false;
           for (var favorite in favorites) {
             if (favorite.url == entity.path) {
               favFlag = true;
               break;
             }
           }
-          return Music(url: entity.path, title: title, favorite: favFlag);
+          return Music(
+            url: entity.path,
+            title: title,
+            favorite: favFlag,
+          );
         }).toList();
 
-        _musics.sort((a, b) {
+        musics.sort((a, b) {
           return a.title.toLowerCase().compareTo(b.title.toLowerCase());
         });
 
-        Provider.of<Audio>(context, listen: false).setMusicList(_musics);
+        Provider.of<Audio>(context, listen: false).setMusicList(musics);
       });
     }
   }
@@ -74,6 +78,18 @@ class _HomeScreenState extends State<HomeScreen> {
           _view = MusicView.ALBUMN;
       }
     });
+  }
+
+  List<Music> filterMusics(String v) {
+    final store = context.watch<Audio>();
+    if (v.length > 0) {
+      return store.musicList
+          .where(
+              (music) => music.title.contains(RegExp(v, caseSensitive: false)))
+          .toList();
+    } else {
+      return store.musicList;
+    }
   }
 
   @override
@@ -93,16 +109,8 @@ class _HomeScreenState extends State<HomeScreen> {
                 child: TextField(
                   autofocus: false,
                   onChanged: (v) {
-                    final store = context.read<Audio>();
                     setState(() {
-                      if (v.length > 0) {
-                        _musics = store.musicList
-                            .where((music) => music.title
-                                .contains(RegExp(v, caseSensitive: false)))
-                            .toList();
-                      } else {
-                        _musics = store.musicList;
-                      }
+                      _search = v;
                     });
                   },
                   decoration: InputDecoration(
@@ -130,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 viewHandler: _viewHandler,
               ),
               MusicList(
-                musics: _musics,
+                musics: filterMusics(_search),
               ),
             ],
           ),
