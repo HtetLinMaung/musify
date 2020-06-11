@@ -13,7 +13,6 @@ class SelectionScreen extends StatefulWidget {
 }
 
 class _SelectionScreenState extends State<SelectionScreen> {
-  int _count = 0;
   bool _selectAll = false;
 
   bool _checkSelectAll(Audio store) {
@@ -33,7 +32,8 @@ class _SelectionScreenState extends State<SelectionScreen> {
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Text('$_count items selected'),
+        title: Text(
+            '${store.musicList.where((music) => music.favorite).toList().length} items selected'),
         centerTitle: true,
         backgroundColor: kBackgroundColor,
         actions: <Widget>[
