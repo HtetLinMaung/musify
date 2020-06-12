@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/components/music_list.dart';
 import 'package:music_player/constant.dart';
+import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/selection_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
@@ -25,6 +26,10 @@ class FavoriteScreenState extends State<FavoriteScreen> {
 
     return Scaffold(
       appBar: AppBar(
+        leading: IconButton(
+          icon: Icon(Icons.arrow_back),
+          onPressed: () => Navigator.pushNamed(context, HomeScreen.routeName),
+        ),
         title: Text('Favourites'),
         backgroundColor: kBackgroundColor,
         elevation: 0,

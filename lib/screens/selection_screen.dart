@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/components/circle_checkbox.dart';
+import 'package:music_player/screens/favorite_screen.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/database.dart';
+import 'package:music_player/models/music.dart';
 
 class SelectionScreen extends StatefulWidget {
   static const routeName = 'SelectionScreen';
@@ -14,101 +16,142 @@ class SelectionScreen extends StatefulWidget {
 
 class _SelectionScreenState extends State<SelectionScreen> {
   bool _selectAll = false;
+  int _count = 0;
+  List<Music> _musics = [];
 
-  bool _checkSelectAll(Audio store) {
-    final selectAll = store.musicList.every((music) => music.favorite);
-    if (selectAll) {
-      setState(() {
-        _selectAll = true;
-      });
-    }
-    return _selectAll;
+  @override
+  void initState() {
+    super.initState();
+    print('initstate');
+    setState(() {
+      _musics = context.read<Audio>().musicList.map((music) {
+        return Music(
+          title: music.title,
+          url: music.url,
+          favorite: false,
+        );
+      }).toList();
+    });
+  }
+
+  List<Music> _getFavList() {
+    return _musics.where((music) => music.favorite).toList();
   }
 
   @override
   Widget build(BuildContext context) {
-    final store = context.watch<Audio>();
-
     return Scaffold(
       appBar: AppBar(
         elevation: 0,
-        title: Text(
-            '${store.musicList.where((music) => music.favorite).toList().length} items selected'),
+        title: Text('$_count item${_count > 1 ? 's' : ''} selected'),
         centerTitle: true,
         backgroundColor: kBackgroundColor,
         actions: <Widget>[
-          CircleCheckbox(
-            checked: _checkSelectAll(store),
-            margin: EdgeInsets.only(
-              right: 12.0,
+          IconButton(
+            icon: Icon(
+              Icons.check,
             ),
-            checkColor: kPlayerIconColor,
-            onChecked: (v) {
-              setState(() {
-                _selectAll = v;
-                if (v) {
-                  store.setMusicList(store.musicList.map((music) {
-                    if (!music.favorite) {
-                      music.favorite = true;
-                      insert(
-                        music: music,
-                        table: 'favorites',
-                      );
-                    }
-                    return music;
-                  }).toList());
-                } else {
-                  store.setMusicList(store.musicList.map((music) {
-                    if (music.favorite) {
-                      music.favorite = false;
-                      delete(
-                        url: music.url,
-                        table: 'favorites',
-                      );
-                    }
-                    return music;
-                  }).toList());
+            onPressed: () async {
+              final favoriteList = _getFavList();
+
+              final store = context.read<Audio>();
+
+              final newMusicList = store.musicList.map((music) {
+                var favorite = music.favorite;
+                for (var element in favoriteList) {
+                  if (element.url == music.url) {
+                    favorite = true;
+                    break;
+                  }
                 }
-              });
+                return Music(
+                  title: music.title,
+                  url: music.url,
+                  favorite: favorite,
+                );
+              }).toList();
+
+              store.setMusicList(newMusicList);
+
+              final dbFavList = await getData(table: 'favorites');
+              for (var music in newMusicList) {
+                bool found = false;
+                if (music.favorite) {
+                  for (var element in dbFavList) {
+                    if (music.url == element.url) {
+                      found = true;
+                      break;
+                    }
+                  }
+                  if (!found) {
+                    insert(music: music, table: 'favorites');
+                  }
+                } else {
+                  delete(url: music.url, table: 'favorites');
+                }
+              }
+              Navigator.pushNamed(context, FavoriteScreen.routeName);
             },
-          ),
+          )
         ],
       ),
       body: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16.0),
-        child: ListView.builder(
-          itemCount: store.musicList.length,
-          itemBuilder: (context, i) {
-            return ListTile(
-              title: Text(
-                store.musicList[i].title,
-                overflow: TextOverflow.ellipsis,
-                softWrap: false,
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16.0,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.end,
+          children: <Widget>[
+            CircleCheckbox(
+              checked: _selectAll,
+              margin: EdgeInsets.only(
+                right: 12.0,
               ),
-              subtitle: Text('Unknown Artist | Unknown Album'),
-              trailing: CircleCheckbox(
-                checkColor: kPlayerIconColor,
-                checked: store.musicList[i].favorite,
-                onChecked: (v) {
-                  final store = context.read<Audio>();
-                  store.musicList[i].favorite = v;
-                  store.setMusicList(store.musicList);
-                  final music = store.musicList[i];
-                  if (music.favorite) {
-                    insert(
-                      music: music,
-                      table: 'favorites',
-                    );
-                  } else {
-                    delete(
-                      url: music.url,
-                      table: 'favorites',
-                    );
+              checkColor: kPlayerIconColor,
+              onChecked: (v) {
+                setState(() {
+                  _selectAll = v;
+                  for (var music in _musics) {
+                    music.favorite = v;
                   }
+                  if (v) {
+                    _count = _getFavList().length;
+                  } else {
+                    _count = 0;
+                  }
+                });
+              },
+            ),
+            Expanded(
+              child: ListView.builder(
+                itemCount: _musics.length,
+                itemBuilder: (context, i) {
+                  return ListTile(
+                    title: Text(
+                      _musics[i].title,
+                      overflow: TextOverflow.ellipsis,
+                      softWrap: false,
+                    ),
+                    subtitle: Text('Unknown Artist | Unknown Album'),
+                    trailing: CircleCheckbox(
+                      checkColor: kPlayerIconColor,
+                      checked: _musics[i].favorite,
+                      onChecked: (v) {
+                        setState(() {
+                          _musics[i].favorite = v;
+                          if (v) {
+                            _count++;
+                          } else {
+                            _count--;
+                          }
+                        });
+                      },
+                    ),
+                  );
                 },
               ),
-            );
-          },
+            ),
+          ],
         ),
       ),
     );

@@ -12,6 +12,7 @@ import 'package:music_player/components/floating_button.dart';
 import 'package:music_player/components/bottom_navbar.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:music_player/database.dart';
+import 'package:music_player/components/search_field.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -27,7 +28,6 @@ class _HomeScreenState extends State<HomeScreen> {
   @override
   void initState() {
     super.initState();
-
     _getLocalMusic();
   }
 
@@ -38,7 +38,6 @@ class _HomeScreenState extends State<HomeScreen> {
           .where((entity) => entity.path.endsWith('.mp3'))
           .toList();
       final favorites = await getData(table: 'favorites');
-      context.read<Audio>().setFavoriteListTemp(favorites);
 
       setState(() {
         final musics = musicUrlList.map((entity) {
@@ -92,8 +91,16 @@ class _HomeScreenState extends State<HomeScreen> {
     }
   }
 
+  void _textChangeHandler(String v) {
+    setState(() {
+      _search = v;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<Audio>();
+
     return WillPopScope(
       onWillPop: () async {
         MoveToBackground.moveTaskToBack();
@@ -104,34 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.stretch,
             children: <Widget>[
-              Padding(
-                padding: const EdgeInsets.all(15.0),
-                child: TextField(
-                  autofocus: false,
-                  onChanged: (v) {
-                    setState(() {
-                      _search = v;
-                    });
-                  },
-                  decoration: InputDecoration(
-                    prefixIcon: Icon(
-                      Icons.search,
-                      color: kInputColor,
-                    ),
-                    hintText: 'Song or Artist',
-                    fillColor: kInputFillColor,
-                    filled: true,
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(20.0),
-                        borderSide: BorderSide(
-                          style: BorderStyle.none,
-                          width: 0,
-                        )),
-                    hintStyle: TextStyle(
-                      color: kInputColor,
-                    ),
-                  ),
-                ),
+              SearchField(
+                onChanged: _textChangeHandler,
               ),
               ShuffleRow(
                 view: _view,
@@ -144,9 +125,8 @@ class _HomeScreenState extends State<HomeScreen> {
           ),
         ),
         floatingActionButton:
-            context.watch<Audio>().currentUrl.isEmpty ? null : FloatingButton(),
-        bottomNavigationBar:
-            context.watch<Audio>().currentUrl.isEmpty ? null : BottomNavbar(),
+            store.currentUrl.isEmpty ? null : FloatingButton(),
+        bottomNavigationBar: store.currentUrl.isEmpty ? null : BottomNavbar(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );
