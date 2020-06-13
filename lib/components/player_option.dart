@@ -56,9 +56,13 @@ class PlayerOption extends StatelessWidget {
                   !store.getCurrentMusic().favorite;
               final music = store.getCurrentMusic();
               if (music.favorite) {
-                insert(music: music, table: 'favorites');
+                insertFavorite(
+                  music: music,
+                );
               } else {
-                delete(url: music.url, table: 'favorites');
+                deleteFavorite(
+                  url: music.url,
+                );
               }
             },
             icon: Icon(

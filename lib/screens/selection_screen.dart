@@ -73,7 +73,7 @@ class _SelectionScreenState extends State<SelectionScreen> {
 
               store.setMusicList(newMusicList);
 
-              final dbFavList = await getData(table: 'favorites');
+              final dbFavList = await getAllFavorites();
               for (var music in newMusicList) {
                 bool found = false;
                 if (music.favorite) {
@@ -84,10 +84,14 @@ class _SelectionScreenState extends State<SelectionScreen> {
                     }
                   }
                   if (!found) {
-                    insert(music: music, table: 'favorites');
+                    insertFavorite(
+                      music: music,
+                    );
                   }
                 } else {
-                  delete(url: music.url, table: 'favorites');
+                  deleteFavorite(
+                    url: music.url,
+                  );
                 }
               }
               Navigator.pushNamed(context, FavoriteScreen.routeName);

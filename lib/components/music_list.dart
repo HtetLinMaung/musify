@@ -44,9 +44,11 @@ class _MusicListState extends State<MusicList> {
                   }).toList());
 
                   if (widget.musics[i].favorite) {
-                    insert(music: widget.musics[i], table: 'favorites');
+                    insertFavorite(
+                      music: widget.musics[i],
+                    );
                   } else {
-                    delete(url: widget.musics[i].url, table: 'favorites');
+                    deleteFavorite(url: widget.musics[i].url);
                   }
                 });
               },

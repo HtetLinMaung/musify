@@ -37,7 +37,7 @@ class _HomeScreenState extends State<HomeScreen> {
       final musicUrlList = (await dir.list(recursive: true).toList())
           .where((entity) => entity.path.endsWith('.mp3'))
           .toList();
-      final favorites = await getData(table: 'favorites');
+      final favorites = await getAllFavorites();
 
       setState(() {
         final musics = musicUrlList.map((entity) {
