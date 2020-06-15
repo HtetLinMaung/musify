@@ -5,6 +5,7 @@ import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:music_player/components/modal_sheet.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/models/playlist.dart';
+import 'package:music_player/screens/playlist_detail_screen.dart';
 import 'home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
@@ -211,43 +212,82 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
       body: Column(
         children: <Widget>[
           Expanded(
-            child: ListView.builder(
-              itemCount: _playlists.length,
-              itemBuilder: (context, i) {
+            child: GridView.count(
+              primary: false,
+              padding: const EdgeInsets.all(20),
+              crossAxisSpacing: 10,
+              mainAxisSpacing: 10,
+              crossAxisCount: 2,
+              childAspectRatio: 0.74,
+              children: List.generate(_playlists.length, (i) {
                 return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: <Widget>[
-                    Card(
-                      margin: EdgeInsets.all(30),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(35),
-                      ),
-                      color: kInActiveColor,
-                      child: Container(
-                        height: 260,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(35),
-                          image: DecorationImage(
-                            image: FileImage(
-                              File(_playlists[i].filePath),
-                            ),
-                            fit: BoxFit.fill,
+                    Expanded(
+                      child: GestureDetector(
+                        onTap: () {
+                          Navigator.pushNamed(
+                            context,
+                            PlaylistDetailScreen.routeName,
+                            arguments: _playlists[i],
+                          );
+                        },
+                        child: Card(
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(25),
                           ),
-                        ),
-                        child: Center(
-                          child: FaIcon(
-                            FontAwesomeIcons.music,
-                            color: _playlists[i].filePath.isEmpty
-                                ? Colors.transparent
-                                : Colors.white,
+                          color: kInActiveColor,
+                          child: Container(
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(25),
+                              image: DecorationImage(
+                                image: FileImage(
+                                  File(_playlists[i].filePath),
+                                ),
+                                fit: BoxFit.fill,
+                              ),
+                            ),
+                            child: Center(
+                              child: FaIcon(
+                                FontAwesomeIcons.music,
+                                color: _playlists[i].filePath.isNotEmpty
+                                    ? Colors.transparent
+                                    : Colors.white,
+                              ),
+                            ),
                           ),
                         ),
                       ),
                     ),
+                    Padding(
+                      padding: const EdgeInsets.only(
+                        left: 8.0,
+                        bottom: 5.0,
+                        top: 15.0,
+                      ),
+                      child: Text(
+                        _playlists[i].name,
+                        overflow: TextOverflow.ellipsis,
+                        style: TextStyle(
+                          fontSize: 18,
+                          color: kMainTextColor,
+                        ),
+                      ),
+                    ),
+                    Padding(
+                      padding: const EdgeInsets.only(left: 8.0),
+                      child: Text(
+                        '0 songs',
+                        style: TextStyle(
+                          color: kInputColor,
+                        ),
+                      ),
+                    )
                   ],
                 );
-              },
+              }),
             ),
-          )
+          ),
         ],
       ),
     );

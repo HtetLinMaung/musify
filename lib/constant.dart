@@ -13,6 +13,7 @@ const kPlayerBackground = Color(0xff1B0434);
 const kBottomSheetTextStyle = TextStyle(
   color: Color(0xff500D5B),
 );
+const kMainTextColor = Color(0xffA59BB1);
 enum PlayerState { PLAYING, PAUSED, COMPLETED, STOPPED }
 enum TrackState { SHUFFLE, LOOP, REPEAT }
 enum MusicView { LIST, ALBUMN }

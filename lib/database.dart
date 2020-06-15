@@ -64,7 +64,6 @@ Future<List<Playlist>> getAllPlaylists() async {
 
 Future<List<Music>> getAllFavorites() async {
   final Database db = await database;
-  print(join(await getDatabasesPath(), 'musify_database.db'));
 
   final List<Map<String, dynamic>> maps = await db.query('favorites');
 
