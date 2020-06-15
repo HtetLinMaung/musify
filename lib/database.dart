@@ -14,6 +14,8 @@ Future<Database> getDatabase() async {
       );
       await db.execute(
           'CREATE TABLE playlists(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, filePath TEXT);');
+      await db.execute(
+          'CREATE TABLE musics(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, playlistId INTEGER);');
     },
     onUpgrade: (db, oldVersion, newVersion) async {
       await db.execute(
@@ -21,6 +23,8 @@ Future<Database> getDatabase() async {
       );
       await db.execute(
           ' CREATE TABLE IF NOT EXISTS playlists(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, filePath TEXT);');
+      await db.execute(
+          'CREATE TABLE IF NOT EXISTS musics(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, playlistId INTEGER);');
     },
     version: 8,
   );
