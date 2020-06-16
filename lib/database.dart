@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:music_player/models/playlist_music.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
 import 'package:music_player/models/music.dart';
@@ -50,6 +51,34 @@ Future<void> insertPlaylist({Playlist playlist}) async {
     playlist.toMap(),
     conflictAlgorithm: ConflictAlgorithm.replace,
   );
+}
+
+Future<void> insertMusicByPlaylist({PlaylistMusic playlistMusic}) async {
+  final Database db = await database;
+
+  await db.insert(
+    'musics',
+    playlistMusic.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
+Future<List<PlaylistMusic>> getMusicByPlaylist(int playlistId) async {
+  final Database db = await database;
+
+  final List<Map<String, dynamic>> maps = await db.query(
+    'musics',
+    where: 'playlistId = ?',
+    whereArgs: [playlistId],
+  );
+
+  return List.generate(maps.length, (i) {
+    return PlaylistMusic(
+      id: maps[i]['id'],
+      playlistId: maps[i]['playlistId'],
+      url: maps[i]['url'],
+    );
+  });
 }
 
 Future<List<Playlist>> getAllPlaylists() async {

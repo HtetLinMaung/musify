@@ -1,8 +1,14 @@
 import 'dart:io';
 
 import 'package:flutter/material.dart';
+import 'package:music_player/components/music_tile.dart';
+import 'package:music_player/components/playlist_detail/playlist_music_list.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/models/playlist.dart';
+import 'package:music_player/database.dart';
+import 'package:music_player/models/playlist_music.dart';
+import 'package:music_player/store/audio.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistDetailScreen extends StatefulWidget {
   static const routeName = 'PlaylistDetail';
@@ -12,9 +18,41 @@ class PlaylistDetailScreen extends StatefulWidget {
 }
 
 class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
+  List<Widget> _musics = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _getMusicByPlaylist();
+  }
+
+  List<Widget> generateWidgetList(List<PlaylistMusic> musics) {
+    final store = context.read<Audio>();
+
+    return List.generate(musics.length, (i) {
+      final music =
+          store.musicList.firstWhere((music) => music.url == musics[i].url);
+      return MusicTile(
+        title: music.title,
+        iconPressed: () {},
+        musicUrl: music.url,
+        favIconColor: !music.favorite ? Color(0xff3C225C) : kFavColor,
+      );
+    });
+  }
+
+  void _getMusicByPlaylist() async {
+    final store = context.read<Audio>();
+    var musics = await getMusicByPlaylist(store.playlist.id);
+
+    setState(() {
+      _musics = generateWidgetList(musics);
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
-    final Playlist playlist = ModalRoute.of(context).settings.arguments;
+    final playlist = context.watch<Audio>().playlist;
 
     return Scaffold(
       body: CustomScrollView(
@@ -23,9 +61,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
             elevation: 5,
             backgroundColor: kBackgroundColor,
             shape: ContinuousRectangleBorder(
-                borderRadius: BorderRadius.only(
-                    bottomLeft: Radius.circular(35),
-                    bottomRight: Radius.circular(35))),
+              borderRadius: BorderRadius.only(
+                bottomLeft: Radius.circular(35),
+                bottomRight: Radius.circular(35),
+              ),
+            ),
             pinned: true,
             expandedHeight: 300.0,
             flexibleSpace: FlexibleSpaceBar(
@@ -54,49 +94,9 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
               ),
             ],
           ),
-          SliverList(
-            delegate: SliverChildListDelegate([
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-              Container(
-                color: kBackgroundColor,
-                height: 100,
-              ),
-            ]),
+          PlaylistMusicList(
+            musics: _musics,
+            playlist: playlist,
           ),
         ],
       ),

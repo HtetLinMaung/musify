@@ -4,6 +4,7 @@ import 'package:flutter/foundation.dart';
 import 'package:audioplayer/audioplayer.dart';
 import 'package:music_player/models/music.dart';
 import 'package:music_player/constant.dart';
+import 'package:music_player/models/playlist.dart';
 
 class Audio with ChangeNotifier {
   final AudioPlayer _audioPlayer = AudioPlayer();
@@ -15,6 +16,7 @@ class Audio with ChangeNotifier {
   Duration _duration = Duration(seconds: 0);
   Duration _position = Duration(seconds: 0);
   bool _muted = false;
+  Playlist _playlist;
 
   Audio() {
     _audioPlayer.onPlayerStateChanged.listen((s) {
@@ -49,6 +51,11 @@ class Audio with ChangeNotifier {
   Duration get position => _position;
   bool get muted => _muted;
   String get currentUrl => _currentUrl;
+  Playlist get playlist => _playlist;
+
+  void setPlaylist(Playlist playlist) {
+    _playlist = playlist;
+  }
 
   void setFavorite(bool f) {
     _favorite = f;

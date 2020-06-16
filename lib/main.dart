@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/screens/add_playlist_musics.dart';
 import 'package:music_player/screens/favorite_screen.dart';
 import 'package:music_player/screens/playlist_detail_screen.dart';
 import 'package:music_player/screens/playlist_screen.dart';
@@ -32,6 +33,7 @@ class MusicPlayer extends StatelessWidget {
         SelectionScreen.routeName: (context) => SelectionScreen(),
         PlaylistScreen.routeName: (context) => PlaylistScreen(),
         PlaylistDetailScreen.routeName: (context) => PlaylistDetailScreen(),
+        AddPlaylistMusics.routeName: (context) => AddPlaylistMusics(),
       },
     );
   }

@@ -6,11 +6,13 @@ import 'package:music_player/components/modal_sheet.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/models/playlist.dart';
 import 'package:music_player/screens/playlist_detail_screen.dart';
+import 'package:music_player/store/audio.dart';
 import 'home_screen.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:flutter/services.dart';
 import 'package:music_player/database.dart';
+import 'package:provider/provider.dart';
 
 class PlaylistScreen extends StatefulWidget {
   static const routeName = 'PlaylistScreen';
@@ -226,10 +228,10 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     Expanded(
                       child: GestureDetector(
                         onTap: () {
+                          context.read<Audio>().setPlaylist(_playlists[i]);
                           Navigator.pushNamed(
                             context,
                             PlaylistDetailScreen.routeName,
-                            arguments: _playlists[i],
                           );
                         },
                         child: Card(
