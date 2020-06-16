@@ -24,7 +24,7 @@ class _AddPlaylistMusicsState extends State<AddPlaylistMusics> {
   @override
   Widget build(BuildContext context) {
     final store = context.watch<Audio>();
-    final Playlist playlist = ModalRoute.of(context).settings.arguments;
+    final Playlist playlist = store.playlist;
 
     return SelectionList(
       items: List.generate(store.musicList.length, (i) {
@@ -39,20 +39,24 @@ class _AddPlaylistMusicsState extends State<AddPlaylistMusics> {
         final store = context.read<Audio>();
         var playlistMusics = await getMusicByPlaylist(store.playlist.id);
 
-        // checkedList.forEach((item) {
-          
-        //   insertMusicByPlaylist(
-        //     playlistMusic: PlaylistMusic(
-        //       playlistId: playlist.id,
-        //       url: item.key,
-        //     ),
-        //   );
-        // });
         for (var item in checkedList) {
+          var found = false;
           for (var music in playlistMusics) {
-            
+            if (music.url == item.key) {
+              found = true;
+              break;
+            }
+          }
+          if (!found) {
+            insertMusicByPlaylist(
+              playlistMusic: PlaylistMusic(
+                playlistId: playlist.id,
+                url: item.key,
+              ),
+            );
           }
         }
+
         Navigator.pushNamed(
           context,
           PlaylistDetailScreen.routeName,

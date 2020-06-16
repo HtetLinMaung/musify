@@ -27,7 +27,7 @@ Future<Database> getDatabase() async {
       await db.execute(
           'CREATE TABLE IF NOT EXISTS musics(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, playlistId INTEGER);');
     },
-    version: 8,
+    version: 9,
   );
 }
 

@@ -4,9 +4,9 @@ import 'package:flutter/material.dart';
 import 'package:music_player/components/music_tile.dart';
 import 'package:music_player/components/playlist_detail/playlist_music_list.dart';
 import 'package:music_player/constant.dart';
-import 'package:music_player/models/playlist.dart';
 import 'package:music_player/database.dart';
 import 'package:music_player/models/playlist_music.dart';
+import 'package:music_player/screens/playlist_screen.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 
@@ -58,6 +58,11 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
       body: CustomScrollView(
         slivers: <Widget>[
           SliverAppBar(
+            leading: IconButton(
+              icon: Icon(Icons.arrow_back),
+              onPressed: () =>
+                  Navigator.pushNamed(context, PlaylistScreen.routeName),
+            ),
             elevation: 5,
             backgroundColor: kBackgroundColor,
             shape: ContinuousRectangleBorder(
