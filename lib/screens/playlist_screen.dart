@@ -26,6 +26,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   File _image = File('');
   String _playlistName = '';
   List<Playlist> _playlists = [];
+  List<int> _counts = [];
 
   void clear() {
     _image = File('');
@@ -33,9 +34,15 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   }
 
   void getPlaylists() async {
-    var playlist = await getAllPlaylists();
+    var playlists = await getAllPlaylists();
+
+    for (var playlist in playlists) {
+      var count = (await getMusicByPlaylist(playlist.id)).length;
+      _counts.add(count);
+    }
+
     setState(() {
-      _playlists = playlist;
+      _playlists = playlists;
     });
   }
 
@@ -279,7 +286,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                     Padding(
                       padding: const EdgeInsets.only(left: 8.0),
                       child: Text(
-                        '0 songs',
+                        '${_counts[i]} songs',
                         style: TextStyle(
                           color: kInputColor,
                         ),

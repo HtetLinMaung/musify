@@ -10,13 +10,13 @@ class ShuffleRow extends StatelessWidget {
   final MusicView view;
   final Function viewHandler;
   final bool favorite;
-  final bool favoriteShuffle;
+  final Play play;
 
   ShuffleRow(
       {@required this.view,
       @required this.viewHandler,
       this.favorite = true,
-      this.favoriteShuffle = false});
+      this.play = Play.NONE});
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +25,7 @@ class ShuffleRow extends StatelessWidget {
       child: Row(
         children: <Widget>[
           ShuffleButton(
-            favoriteShuffle: favoriteShuffle,
+            play: play,
           ),
           Expanded(
             child: Text(''),

@@ -8,9 +8,9 @@ import 'package:music_player/store/audio.dart';
 
 class MusicList extends StatefulWidget {
   final List<Music> musics;
-  final bool favPlay;
+  final Play play;
 
-  MusicList({@required this.musics, this.favPlay = false});
+  MusicList({@required this.musics, this.play = Play.NONE});
 
   @override
   _MusicListState createState() => _MusicListState();
@@ -26,7 +26,7 @@ class _MusicListState extends State<MusicList> {
           itemCount: widget.musics.length,
           itemBuilder: (context, i) {
             return MusicTile(
-              favPlay: widget.favPlay,
+              play: widget.play,
               title: widget.musics[i].title,
               musicUrl: widget.musics[i].url,
               favIconColor:

@@ -4,9 +4,9 @@ import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
 
 class ShuffleButton extends StatelessWidget {
-  ShuffleButton({this.favoriteShuffle = false});
+  ShuffleButton({this.play = Play.NONE});
 
-  final bool favoriteShuffle;
+  final Play play;
 
   @override
   Widget build(BuildContext context) {
@@ -15,8 +15,7 @@ class ShuffleButton extends StatelessWidget {
         borderRadius: BorderRadius.circular(18.0),
       ),
       color: kInActiveColor,
-      onPressed: () =>
-          context.read<Audio>().shufflePlay(favorite: favoriteShuffle),
+      onPressed: () => context.read<Audio>().shufflePlay(play: play),
       child: Row(
         children: <Widget>[
           Icon(

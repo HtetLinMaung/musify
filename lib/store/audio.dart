@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:flutter/foundation.dart';
 import 'package:audioplayer/audioplayer.dart';
+import 'package:music_player/database.dart';
 import 'package:music_player/models/music.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/models/playlist.dart';
@@ -12,7 +13,7 @@ class Audio with ChangeNotifier {
   String _currentUrl = '';
   PlayerState _playerState = PlayerState.STOPPED;
   TrackState _trackState = TrackState.LOOP;
-  bool _favorite = false;
+  Play _play = Play.NONE;
   Duration _duration = Duration(seconds: 0);
   Duration _position = Duration(seconds: 0);
   bool _muted = false;
@@ -57,8 +58,8 @@ class Audio with ChangeNotifier {
     _playlist = playlist;
   }
 
-  void setFavorite(bool f) {
-    _favorite = f;
+  void setPlay(Play p) {
+    _play = p;
   }
 
   void mute() {
@@ -105,31 +106,15 @@ class Audio with ChangeNotifier {
   }
 
   void next() {
-    var musicList = _musicList;
-    var index = musicList.indexOf(getCurrentMusic());
-    if (_favorite) {
-      musicList = getFavorites();
-      index = musicList
-          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
-    }
-    if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
-      if (index == musicList.length - 1) {
-        index = 0;
-      } else {
-        index++;
-      }
-    } else if (_trackState == TrackState.SHUFFLE) {
-      index = Random().nextInt(musicList.length);
-    }
-    stopAndPlay(musicList[index].url);
+    _skip();
   }
 
-  void shufflePlay({favorite = false}) {
+  void shufflePlay({Play play = Play.NONE}) {
     _trackState = TrackState.SHUFFLE;
-    _favorite = favorite;
+    _play = play;
 
     var musicList = _musicList;
-    if (favorite) {
+    if (_play == Play.FAVORITE) {
       musicList = musicList.where((music) => music.favorite).toList();
     }
     final index = Random().nextInt(musicList.length);
@@ -137,23 +122,51 @@ class Audio with ChangeNotifier {
   }
 
   void previous() {
+    _skip(previous: true);
+  }
+
+  void _skip({bool previous = false}) async {
     var musicList = _musicList;
     var index = musicList.indexOf(getCurrentMusic());
-    if (_favorite) {
+    if (_play == Play.FAVORITE) {
       musicList = getFavorites();
+      index = musicList
+          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
+    } else if (_play == Play.PLAYLIST) {
+      musicList = await getPlaylistMusics();
       index = musicList
           .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
     }
     if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
-      if (index == 0) {
-        index = musicList.length - 1;
+      if (previous) {
+        if (index == 0) {
+          index = musicList.length - 1;
+        } else {
+          index--;
+        }
       } else {
-        index--;
+        if (index == musicList.length - 1) {
+          index = 0;
+        } else {
+          index++;
+        }
       }
     } else if (_trackState == TrackState.SHUFFLE) {
       index = Random().nextInt(musicList.length);
     }
     stopAndPlay(musicList[index].url);
+  }
+
+  Future<List<Music>> getPlaylistMusics() async {
+    final playlistMusics = await getMusicByPlaylist(_playlist.id);
+    return _musicList.where((music) {
+      for (var item in playlistMusics) {
+        if (music.url == item.url) {
+          return true;
+        }
+      }
+      return false;
+    }).toList();
   }
 
   Music getCurrentMusic() {

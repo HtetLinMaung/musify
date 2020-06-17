@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/constant.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:music_player/store/audio.dart';
@@ -12,7 +13,7 @@ class MusicTile extends StatelessWidget {
       this.musicUrl,
       @required this.iconPressed,
       this.favIconColor,
-      this.favPlay = false})
+      this.play = Play.NONE})
       : super(key: key);
 
   final String title;
@@ -20,7 +21,7 @@ class MusicTile extends StatelessWidget {
   final String musicUrl;
   final Function iconPressed;
   final Color favIconColor;
-  final bool favPlay;
+  final Play play;
 
   @override
   Widget build(BuildContext context) {
@@ -48,7 +49,7 @@ class MusicTile extends StatelessWidget {
       ),
       onTap: () {
         final store = context.read<Audio>();
-        store.setFavorite(favPlay);
+        store.setPlay(play);
         store.stopAndPlay(musicUrl);
         Navigator.pushNamed(context, PlayerScreen.routeName);
       },

@@ -49,10 +49,10 @@ class FavoriteScreenState extends State<FavoriteScreen> {
             view: _view,
             viewHandler: () {},
             favorite: false,
-            favoriteShuffle: true,
+            play: Play.FAVORITE,
           ),
           MusicList(
-            favPlay: true,
+            play: Play.FAVORITE,
             musics: store.musicList.where((music) => music.favorite).toList(),
           ),
         ],

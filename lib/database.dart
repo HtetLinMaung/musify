@@ -63,6 +63,42 @@ Future<void> insertMusicByPlaylist({PlaylistMusic playlistMusic}) async {
   );
 }
 
+Future<void> deleteMusicByPlaylist({
+  int playlistId,
+}) async {
+  final db = await database;
+
+  await db.delete(
+    'musics',
+    where: "playlistId = ?",
+    whereArgs: [playlistId],
+  );
+}
+
+Future<void> updatePlaylist({Playlist playlist}) async {
+  final db = await database;
+
+  await db.update(
+    'playlists',
+    playlist.toMap(),
+    where: "id = ?",
+    whereArgs: [playlist.id],
+  );
+}
+
+Future<void> deletePlaylist({
+  int playlistId,
+}) async {
+  final db = await database;
+
+  await db.delete(
+    'playlists',
+    where: "id = ?",
+    whereArgs: [playlistId],
+  );
+  deleteMusicByPlaylist(playlistId: playlistId);
+}
+
 Future<List<PlaylistMusic>> getMusicByPlaylist(int playlistId) async {
   final Database db = await database;
 

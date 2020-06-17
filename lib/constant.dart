@@ -17,3 +17,4 @@ const kMainTextColor = Color(0xffA59BB1);
 enum PlayerState { PLAYING, PAUSED, COMPLETED, STOPPED }
 enum TrackState { SHUFFLE, LOOP, REPEAT }
 enum MusicView { LIST, ALBUMN }
+enum Play { FAVORITE, PLAYLIST, NONE }
