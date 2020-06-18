@@ -18,6 +18,7 @@ class Audio with ChangeNotifier {
   Duration _position = Duration(seconds: 0);
   bool _muted = false;
   Playlist _playlist;
+  String _currentImageUrl = '';
 
   Audio() {
     _audioPlayer.onPlayerStateChanged.listen((s) {
@@ -53,6 +54,11 @@ class Audio with ChangeNotifier {
   bool get muted => _muted;
   String get currentUrl => _currentUrl;
   Playlist get playlist => _playlist;
+  String get currentImageUrl => _currentImageUrl;
+
+  void setCurrentUrl(String url) {
+    _currentUrl = url;
+  }
 
   void setPlaylist(Playlist playlist) {
     _playlist = playlist;
@@ -85,9 +91,15 @@ class Audio with ChangeNotifier {
     notifyListeners();
   }
 
-  void stopAndPlay(String url) {
+  void stopAndPlay(String url) async {
     _position = Duration(seconds: 0);
     _currentUrl = url;
+    var musicImages = await getImageByMusic(_currentUrl);
+    if (musicImages.isNotEmpty) {
+      _currentImageUrl = musicImages[0].imageUrl;
+    } else {
+      _currentImageUrl = '';
+    }
     notifyListeners();
     _audioPlayer.stop();
     _audioPlayer.play(_currentUrl, isLocal: true);
@@ -154,6 +166,7 @@ class Audio with ChangeNotifier {
     } else if (_trackState == TrackState.SHUFFLE) {
       index = Random().nextInt(musicList.length);
     }
+
     stopAndPlay(musicList[index].url);
   }
 

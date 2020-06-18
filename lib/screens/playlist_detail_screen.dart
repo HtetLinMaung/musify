@@ -118,12 +118,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
           ),
           titleTextStyle: TextStyle(fontSize: 18),
           actions: <Widget>[
-            // FlatButton(
-            //   child: Text('Approve'),
-            //   onPressed: () {
-            //     Navigator.of(context).pop();
-            //   },
-            // ),
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               mainAxisSize: MainAxisSize.max,
@@ -198,9 +192,12 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                   bottomLeft: Radius.circular(35),
                   bottomRight: Radius.circular(35),
                 ),
-                child: Image.file(
-                  File(playlist.filePath),
-                  fit: BoxFit.cover,
+                child: Hero(
+                  tag: 'image',
+                  child: Image.file(
+                    File(playlist.filePath),
+                    fit: BoxFit.cover,
+                  ),
                 ),
               ),
             ),

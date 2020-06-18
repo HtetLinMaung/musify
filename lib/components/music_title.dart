@@ -3,6 +3,10 @@ import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 
 class MusicTitle extends StatelessWidget {
+  final String title;
+
+  MusicTitle({this.title});
+
   @override
   Widget build(BuildContext context) {
     return Padding(

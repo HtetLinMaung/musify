@@ -1,5 +1,6 @@
 import 'dart:async';
 
+import 'package:music_player/models/music_image.dart';
 import 'package:music_player/models/playlist_music.dart';
 import 'package:path/path.dart';
 import 'package:sqflite/sqflite.dart';
@@ -17,8 +18,11 @@ Future<Database> getDatabase() async {
           'CREATE TABLE playlists(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, filePath TEXT);');
       await db.execute(
           'CREATE TABLE musics(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, playlistId INTEGER);');
+      await db.execute(
+          'CREATE TABLE music_images(id INTEGER PRIMARY KEY AUTOINCREMENT, imageUrl TEXT, musicUrl TEXT, albumName TEXT, artistName TEXT);');
     },
     onUpgrade: (db, oldVersion, newVersion) async {
+      // await db.execute('DROP TABLE music_images');
       await db.execute(
         "CREATE TABLE IF NOT EXISTS favorites(id INTEGER PRIMARY KEY AUTOINCREMENT, title TEXT, url TEXT, favorite INTEGER);",
       );
@@ -26,8 +30,10 @@ Future<Database> getDatabase() async {
           ' CREATE TABLE IF NOT EXISTS playlists(id INTEGER PRIMARY KEY AUTOINCREMENT, name TEXT, filePath TEXT);');
       await db.execute(
           'CREATE TABLE IF NOT EXISTS musics(id INTEGER PRIMARY KEY AUTOINCREMENT, url TEXT, playlistId INTEGER);');
+      await db.execute(
+          'CREATE TABLE IF NOT EXISTS music_images(id INTEGER PRIMARY KEY AUTOINCREMENT, imageUrl TEXT, musicUrl TEXT, albumName TEXT, artistName TEXT);');
     },
-    version: 9,
+    version: 16,
   );
 }
 
@@ -63,6 +69,16 @@ Future<void> insertMusicByPlaylist({PlaylistMusic playlistMusic}) async {
   );
 }
 
+Future<void> insertImageByMusic({MusicImage musicImage}) async {
+  final Database db = await database;
+
+  await db.insert(
+    'music_images',
+    musicImage.toMap(),
+    conflictAlgorithm: ConflictAlgorithm.replace,
+  );
+}
+
 Future<void> deleteMusicByPlaylist({
   int playlistId,
 }) async {
@@ -73,6 +89,37 @@ Future<void> deleteMusicByPlaylist({
     where: "playlistId = ?",
     whereArgs: [playlistId],
   );
+}
+
+Future<void> updateImageByMusic({MusicImage musicImage}) async {
+  final db = await database;
+
+  await db.update(
+    'music_images',
+    musicImage.toMap(),
+    where: "musicUrl = ?",
+    whereArgs: [musicImage.musicUrl],
+  );
+}
+
+Future<List<MusicImage>> getImageByMusic(String musicUrl) async {
+  final Database db = await database;
+
+  final List<Map<String, dynamic>> maps = await db.query(
+    'music_images',
+    where: 'musicUrl = ?',
+    whereArgs: [musicUrl],
+  );
+
+  return List.generate(maps.length, (i) {
+    return MusicImage(
+      id: maps[i]['id'],
+      imageUrl: maps[i]['imageUrl'],
+      musicUrl: maps[i]['musicUrl'],
+      albumName: maps[i]['albumName'],
+      artistName: maps[i]['artistName'],
+    );
+  });
 }
 
 Future<void> updatePlaylist({Playlist playlist}) async {

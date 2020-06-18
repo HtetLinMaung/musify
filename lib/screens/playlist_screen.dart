@@ -149,23 +149,26 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                           });
                                         }
                                       },
-                                      child: Container(
-                                        width: 150,
-                                        height: 160,
-                                        decoration: BoxDecoration(
-                                          borderRadius:
-                                              BorderRadius.circular(35),
-                                          image: DecorationImage(
-                                            image: FileImage(_image),
-                                            fit: BoxFit.fill,
+                                      child: Hero(
+                                        tag: 'image',
+                                        child: Container(
+                                          width: 150,
+                                          height: 160,
+                                          decoration: BoxDecoration(
+                                            borderRadius:
+                                                BorderRadius.circular(35),
+                                            image: DecorationImage(
+                                              image: FileImage(_image),
+                                              fit: BoxFit.fill,
+                                            ),
                                           ),
-                                        ),
-                                        child: Center(
-                                          child: FaIcon(
-                                            FontAwesomeIcons.music,
-                                            color: _image.existsSync()
-                                                ? Colors.transparent
-                                                : Colors.white,
+                                          child: Center(
+                                            child: FaIcon(
+                                              FontAwesomeIcons.music,
+                                              color: _image.existsSync()
+                                                  ? Colors.transparent
+                                                  : Colors.white,
+                                            ),
                                           ),
                                         ),
                                       ),

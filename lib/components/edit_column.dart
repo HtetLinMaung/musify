@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/screens/edit_music_screen.dart';
 import 'text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
@@ -37,7 +38,8 @@ class EditColumn extends StatelessWidget {
         ),
         TextButton(
           text: 'Edit',
-          onPressed: () {},
+          onPressed: () =>
+              Navigator.pushNamed(context, EditMusicScreen.routeName),
         ),
       ],
     );
