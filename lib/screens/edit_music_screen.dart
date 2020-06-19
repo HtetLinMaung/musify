@@ -69,6 +69,7 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
         musicUrlList[musicUrlList.length - 1] = _musicNameController.text;
         var musicUrl = musicUrlList.join('/');
         store.setCurrentUrl(musicUrl);
+        store.setCurrentImageUrl(_image.path);
         store.setMusicList(store.musicList.map((music) {
           if (music.url == _musicUrl) {
             return Music(
@@ -102,6 +103,7 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
               albumName: _albumNameController.text,
               artistName: _artistNameController.text,
             ),
+            musicUrl: _musicUrl,
           );
         }
 

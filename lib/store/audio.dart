@@ -56,6 +56,10 @@ class Audio with ChangeNotifier {
   Playlist get playlist => _playlist;
   String get currentImageUrl => _currentImageUrl;
 
+  void setCurrentImageUrl(String url) {
+    _currentImageUrl = url;
+  }
+
   void setCurrentUrl(String url) {
     _currentUrl = url;
   }

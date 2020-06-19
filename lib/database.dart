@@ -91,14 +91,15 @@ Future<void> deleteMusicByPlaylist({
   );
 }
 
-Future<void> updateImageByMusic({MusicImage musicImage}) async {
+Future<void> updateImageByMusic(
+    {MusicImage musicImage, String musicUrl}) async {
   final db = await database;
 
   await db.update(
     'music_images',
     musicImage.toMap(),
     where: "musicUrl = ?",
-    whereArgs: [musicImage.musicUrl],
+    whereArgs: [musicUrl],
   );
 }
 
