@@ -102,6 +102,29 @@ Future<void> updateImageByMusic({MusicImage musicImage}) async {
   );
 }
 
+Future<void> updateFavoriteByUrl({Music music, String url}) async {
+  final db = await database;
+
+  await db.update(
+    'favorites',
+    music.toMap(),
+    where: "url = ?",
+    whereArgs: [url],
+  );
+}
+
+Future<void> updatePlaylistMusicByUrl(
+    {PlaylistMusic playlistMusic, String url}) async {
+  final db = await database;
+
+  await db.update(
+    'musics',
+    playlistMusic.toMap(),
+    where: "url = ?",
+    whereArgs: [url],
+  );
+}
+
 Future<List<MusicImage>> getImageByMusic(String musicUrl) async {
   final Database db = await database;
 
@@ -153,6 +176,24 @@ Future<List<PlaylistMusic>> getMusicByPlaylist(int playlistId) async {
     'musics',
     where: 'playlistId = ?',
     whereArgs: [playlistId],
+  );
+
+  return List.generate(maps.length, (i) {
+    return PlaylistMusic(
+      id: maps[i]['id'],
+      playlistId: maps[i]['playlistId'],
+      url: maps[i]['url'],
+    );
+  });
+}
+
+Future<List<PlaylistMusic>> getPlaylistMusicByUrl({String url}) async {
+  final Database db = await database;
+
+  final List<Map<String, dynamic>> maps = await db.query(
+    'musics',
+    where: 'url = ?',
+    whereArgs: [url],
   );
 
   return List.generate(maps.length, (i) {

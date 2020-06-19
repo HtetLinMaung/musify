@@ -6,6 +6,7 @@ import 'package:music_player/components/edit_albumn_layout.dart';
 import 'package:music_player/database.dart';
 import 'package:music_player/models/music.dart';
 import 'package:music_player/models/music_image.dart';
+import 'package:music_player/models/playlist_music.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -61,7 +62,7 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
       hintText3: 'Edit artist name',
       controller3: _artistNameController,
       image: _image,
-      onAccepted: () {
+      onAccepted: () async {
         final store = context.read<Audio>();
 
         var musicUrlList = _musicUrl.split('/');
@@ -103,6 +104,34 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
             ),
           );
         }
+
+        var favoriteMusics = await getAllFavorites();
+        for (var music in favoriteMusics) {
+          if (music.url == _musicUrl) {
+            updateFavoriteByUrl(
+                music: Music(
+                  title: music.title,
+                  url: musicUrl,
+                  favorite: music.favorite,
+                  id: music.id,
+                ),
+                url: _musicUrl);
+            break;
+          }
+        }
+        var playlistMusics = await getPlaylistMusicByUrl(url: _musicUrl);
+        if (playlistMusics.isNotEmpty) {
+          for (var playlistMusic in playlistMusics) {
+            updatePlaylistMusicByUrl(
+                playlistMusic: PlaylistMusic(
+                  playlistId: playlistMusic.playlistId,
+                  url: musicUrl,
+                  id: playlistMusic.id,
+                ),
+                url: _musicUrl);
+          }
+        }
+
         Navigator.pushNamed(context, PlayerScreen.routeName);
       },
       onTapImage: () async {
