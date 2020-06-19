@@ -101,8 +101,6 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
   }
 
   Future<void> _showDeleteDialog() async {
-    final store = context.read<Audio>();
-
     return showDialog<void>(
       context: context,
       barrierDismissible: false, // user must tap button!

@@ -170,6 +170,30 @@ Future<void> deletePlaylist({
   deleteMusicByPlaylist(playlistId: playlistId);
 }
 
+Future<void> deleteImageByMusic({
+  String musicUrl,
+}) async {
+  final db = await database;
+
+  await db.delete(
+    'music_images',
+    where: "musicUrl = ?",
+    whereArgs: [musicUrl],
+  );
+  deleteFavorite(url: musicUrl);
+  deletePlaylistMusicByUrl(url: musicUrl);
+}
+
+Future<void> deletePlaylistMusicByUrl({String url}) async {
+  final db = await database;
+
+  await db.delete(
+    'musics',
+    where: "url = ?",
+    whereArgs: [url],
+  );
+}
+
 Future<List<PlaylistMusic>> getMusicByPlaylist(int playlistId) async {
   final Database db = await database;
 

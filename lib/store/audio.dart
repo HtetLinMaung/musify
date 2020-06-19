@@ -95,6 +95,10 @@ class Audio with ChangeNotifier {
     notifyListeners();
   }
 
+  void stop() {
+    _audioPlayer.stop();
+  }
+
   void stopAndPlay(String url) async {
     _position = Duration(seconds: 0);
     _currentUrl = url;
