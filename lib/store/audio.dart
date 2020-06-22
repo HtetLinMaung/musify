@@ -1,14 +1,18 @@
 import 'dart:math';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
-import 'package:audioplayer/audioplayer.dart';
+import 'package:music_player/audio_task.dart';
 import 'package:music_player/database.dart';
 import 'package:music_player/models/music.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/models/playlist.dart';
 
+_backgroundTaskEntrypoint() {
+  AudioServiceBackground.run(() => MyAudioTask());
+}
+
 class Audio with ChangeNotifier {
-  final AudioPlayer _audioPlayer = AudioPlayer();
   List<Music> _musicList = [];
   String _currentUrl = '';
   PlayerState _playerState = PlayerState.STOPPED;
@@ -21,14 +25,23 @@ class Audio with ChangeNotifier {
   String _currentImageUrl = '';
 
   Audio() {
-    _audioPlayer.onPlayerStateChanged.listen((s) {
-      if (s == AudioPlayerState.PLAYING) {
+    AudioService.playbackStateStream.listen((state) {
+      _position = state.position;
+      if (state.playing) {
         _playerState = PlayerState.PLAYING;
-        _duration = audioPlayer.duration;
-      } else if (s == AudioPlayerState.PAUSED) {
+      } else {
         _playerState = PlayerState.PAUSED;
-      } else if (s == AudioPlayerState.COMPLETED) {
-        _position = _duration;
+      }
+      notifyListeners();
+    });
+    AudioService.currentMediaItemStream.listen((item) {
+      if (item != null && item.duration != null) {
+        _duration = item.duration;
+        notifyListeners();
+      }
+    });
+    AudioService.customEventStream.listen((event) {
+      if (event == 'completed') {
         _playerState = PlayerState.COMPLETED;
         if (_trackState == TrackState.REPEAT) {
           stopAndPlay(_currentUrl);
@@ -36,16 +49,10 @@ class Audio with ChangeNotifier {
           next();
         }
       }
-
-      notifyListeners();
-    });
-    _audioPlayer.onAudioPositionChanged.listen((p) {
-      _position = p;
-      notifyListeners();
     });
   }
 
-  AudioPlayer get audioPlayer => _audioPlayer;
+  // AudioPlayer get audioPlayer => _audioPlayer;
   List<Music> get musicList => _musicList;
   PlayerState get playerState => _playerState;
   TrackState get trackState => _trackState;
@@ -75,7 +82,7 @@ class Audio with ChangeNotifier {
   void mute() {
     _muted = !_muted;
     notifyListeners();
-    _audioPlayer.mute(_muted);
+    AudioService.customAction('mute', _muted);
   }
 
   void setTrackState(TrackState s) {
@@ -84,19 +91,12 @@ class Audio with ChangeNotifier {
   }
 
   void seek(double seconds) async {
-    if (_playerState == PlayerState.PAUSED) {
-      await resume();
-    }
-    _audioPlayer.seek(seconds);
+    AudioService.seekTo(Duration(seconds: seconds.floor()));
   }
 
   void setMusicList(List<Music> list) {
     _musicList = list;
     notifyListeners();
-  }
-
-  void stop() {
-    _audioPlayer.stop();
   }
 
   void stopAndPlay(String url) async {
@@ -109,16 +109,21 @@ class Audio with ChangeNotifier {
       _currentImageUrl = '';
     }
     notifyListeners();
-    _audioPlayer.stop();
-    _audioPlayer.play(_currentUrl, isLocal: true);
+    if (AudioService.running) {
+      AudioService.customAction('playNewMusic', _currentUrl);
+    }
+    AudioService.start(
+      backgroundTaskEntrypoint: _backgroundTaskEntrypoint,
+      params: {'url': _currentUrl},
+    );
   }
 
   void pause() {
-    _audioPlayer.pause();
+    AudioService.pause();
   }
 
   Future<void> resume() {
-    return _audioPlayer.play(_currentUrl);
+    return AudioService.play();
   }
 
   List<Music> getFavorites() {

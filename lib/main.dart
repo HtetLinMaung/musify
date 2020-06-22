@@ -11,6 +11,7 @@ import 'package:music_player/constant.dart';
 import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'screens/selection_screen.dart';
+import 'package:audio_service/audio_service.dart';
 
 void main() => runApp(MultiProvider(
       providers: [
@@ -18,8 +19,10 @@ void main() => runApp(MultiProvider(
           create: (_) => Audio(),
         )
       ],
-      child: MusicPlayer(),
+      child: AudioServiceWidget(child: MusicPlayer()),
     ));
+
+
 
 class MusicPlayer extends StatelessWidget {
   @override
