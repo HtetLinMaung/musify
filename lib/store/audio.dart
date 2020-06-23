@@ -26,7 +26,7 @@ class Audio with ChangeNotifier {
 
   Audio() {
     AudioService.playbackStateStream.listen((state) {
-      _position = state.position;
+      _position = state.position ?? Duration();
       if (state.playing) {
         _playerState = PlayerState.PLAYING;
       } else {
@@ -37,22 +37,19 @@ class Audio with ChangeNotifier {
     AudioService.currentMediaItemStream.listen((item) {
       if (item != null && item.duration != null) {
         _duration = item.duration;
+        setUrls(item.id);
         notifyListeners();
       }
     });
     AudioService.customEventStream.listen((event) {
       if (event == 'completed') {
         _playerState = PlayerState.COMPLETED;
-        if (_trackState == TrackState.REPEAT) {
-          stopAndPlay(_currentUrl);
-        } else {
-          next();
-        }
+      } else if (event.startsWith('changeTrack')) {
+        setUrls(event.split(':')[1]);
       }
     });
   }
 
-  // AudioPlayer get audioPlayer => _audioPlayer;
   List<Music> get musicList => _musicList;
   PlayerState get playerState => _playerState;
   TrackState get trackState => _trackState;
@@ -68,15 +65,27 @@ class Audio with ChangeNotifier {
   }
 
   void setCurrentUrl(String url) {
+    AudioService.customAction('setCurrentUrl', url);
     _currentUrl = url;
   }
 
   void setPlaylist(Playlist playlist) {
+    AudioService.customAction('setPlaylist', playlist.toMap());
     _playlist = playlist;
   }
 
   void setPlay(Play p) {
     _play = p;
+    switch (p) {
+      case Play.FAVORITE:
+        AudioService.customAction('setPlay', 'favorite');
+        break;
+      case Play.PLAYLIST:
+        AudioService.customAction('setPlay', 'playlist');
+        break;
+      default:
+        AudioService.customAction('setPlay', 'none');
+    }
   }
 
   void mute() {
@@ -96,11 +105,29 @@ class Audio with ChangeNotifier {
 
   void setMusicList(List<Music> list) {
     _musicList = list;
+    if (AudioService.running) {
+      AudioService.customAction(
+          'setMusicUrl',
+          List.generate(_musicList.length, (i) {
+            return _musicList[i].toMap();
+          }));
+    }
+    initAudioService();
     notifyListeners();
   }
 
-  void stopAndPlay(String url) async {
-    _position = Duration(seconds: 0);
+  void initAudioService() {
+    AudioService.start(
+      backgroundTaskEntrypoint: _backgroundTaskEntrypoint,
+      params: {
+        'musicList': List.generate(_musicList.length, (i) {
+          return _musicList[i].toMap();
+        })
+      },
+    );
+  }
+
+  void setUrls(String url) async {
     _currentUrl = url;
     var musicImages = await getImageByMusic(_currentUrl);
     if (musicImages.isNotEmpty) {
@@ -109,13 +136,14 @@ class Audio with ChangeNotifier {
       _currentImageUrl = '';
     }
     notifyListeners();
+  }
+
+  void stopAndPlay(String url) async {
+    _position = Duration(seconds: 0);
+    setUrls(url);
     if (AudioService.running) {
       AudioService.customAction('playNewMusic', _currentUrl);
     }
-    AudioService.start(
-      backgroundTaskEntrypoint: _backgroundTaskEntrypoint,
-      params: {'url': _currentUrl},
-    );
   }
 
   void pause() {
@@ -131,12 +159,13 @@ class Audio with ChangeNotifier {
   }
 
   void next() {
-    _skip();
+    AudioService.customAction('next');
   }
 
   void shufflePlay({Play play = Play.NONE}) {
     _trackState = TrackState.SHUFFLE;
-    _play = play;
+    AudioService.customAction('setTrackState', 'shuffle');
+    setPlay(play);
 
     var musicList = _musicList;
     if (_play == Play.FAVORITE) {
@@ -147,41 +176,41 @@ class Audio with ChangeNotifier {
   }
 
   void previous() {
-    _skip(previous: true);
+    AudioService.customAction('previous');
   }
 
-  void _skip({bool previous = false}) async {
-    var musicList = _musicList;
-    var index = musicList.indexOf(getCurrentMusic());
-    if (_play == Play.FAVORITE) {
-      musicList = getFavorites();
-      index = musicList
-          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
-    } else if (_play == Play.PLAYLIST) {
-      musicList = await getPlaylistMusics();
-      index = musicList
-          .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
-    }
-    if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
-      if (previous) {
-        if (index == 0) {
-          index = musicList.length - 1;
-        } else {
-          index--;
-        }
-      } else {
-        if (index == musicList.length - 1) {
-          index = 0;
-        } else {
-          index++;
-        }
-      }
-    } else if (_trackState == TrackState.SHUFFLE) {
-      index = Random().nextInt(musicList.length);
-    }
+  // void _skip({bool previous = false}) async {
+  //   var musicList = _musicList;
+  //   var index = musicList.indexOf(getCurrentMusic());
+  //   if (_play == Play.FAVORITE) {
+  //     musicList = getFavorites();
+  //     index = musicList
+  //         .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
+  //   } else if (_play == Play.PLAYLIST) {
+  //     musicList = await getPlaylistMusics();
+  //     index = musicList
+  //         .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
+  //   }
+  //   if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
+  //     if (previous) {
+  //       if (index == 0) {
+  //         index = musicList.length - 1;
+  //       } else {
+  //         index--;
+  //       }
+  //     } else {
+  //       if (index == musicList.length - 1) {
+  //         index = 0;
+  //       } else {
+  //         index++;
+  //       }
+  //     }
+  //   } else if (_trackState == TrackState.SHUFFLE) {
+  //     index = Random().nextInt(musicList.length);
+  //   }
 
-    stopAndPlay(musicList[index].url);
-  }
+  //   stopAndPlay(musicList[index].url);
+  // }
 
   Future<List<Music>> getPlaylistMusics() async {
     final playlistMusics = await getMusicByPlaylist(_playlist.id);

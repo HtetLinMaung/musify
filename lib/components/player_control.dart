@@ -1,3 +1,4 @@
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/constant.dart';
@@ -32,12 +33,15 @@ class PlayerControl extends StatelessWidget {
             switch (store.trackState) {
               case TrackState.LOOP:
                 store.setTrackState(TrackState.SHUFFLE);
+                AudioService.customAction('setTrackState', 'shuffle');
                 break;
               case TrackState.SHUFFLE:
                 store.setTrackState(TrackState.REPEAT);
+                AudioService.customAction('setTrackState', 'repeat');
                 break;
               default:
                 store.setTrackState(TrackState.LOOP);
+                AudioService.customAction('setTrackState', 'loop');
             }
           },
         ),
