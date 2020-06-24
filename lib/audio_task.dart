@@ -1,3 +1,4 @@
+import 'dart:io';
 import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
@@ -40,7 +41,8 @@ class MyAudioTask extends BackgroundAudioTask {
   Duration _position = Duration();
   Duration _duration = Duration();
   String _currentUrl = '';
-  Map<String, dynamic> _playlist = {};
+  Map<dynamic, dynamic> _playlist = {};
+  String _currentImageUrl = '';
 
   // Initialise your audio task
   @override
@@ -72,11 +74,13 @@ class MyAudioTask extends BackgroundAudioTask {
         processingState: AudioProcessingState.ready,
       );
       var urlList = _currentUrl.split('/');
+      print(_currentImageUrl);
       AudioServiceBackground.setMediaItem(MediaItem(
         id: _currentUrl ?? 'none',
         title: urlList[urlList.length - 1],
         duration: _duration,
         album: 'Unknown album',
+        artUri: _currentImageUrl,
       ));
     });
   }
@@ -90,10 +94,11 @@ class MyAudioTask extends BackgroundAudioTask {
       title: urlList[urlList.length - 1],
       duration: _duration,
       album: 'Unknown album',
+      artUri: _currentImageUrl,
     ));
     _playing = true;
     AudioServiceBackground.setState(
-      controls: [pauseControl, stopControl],
+      controls: getControls(),
       playing: _playing,
       processingState: AudioProcessingState.ready,
     );
@@ -112,7 +117,7 @@ class MyAudioTask extends BackgroundAudioTask {
     }).toList();
   }
 
-  void _skip({bool previous = false}) async {
+  Future<void> _skip({bool previous = false}) async {
     var musicList = _musicList;
     var index = musicList.indexOf(
         musicList.firstWhere((element) => element['url'] == _currentUrl));
@@ -151,19 +156,9 @@ class MyAudioTask extends BackgroundAudioTask {
 
   List<MediaControl> getControls() {
     if (_playing) {
-      return [
-        skipToPreviousControl,
-        pauseControl,
-        stopControl,
-        skipToNextControl
-      ];
+      return [skipToPreviousControl, pauseControl, skipToNextControl];
     } else {
-      return [
-        skipToPreviousControl,
-        playControl,
-        stopControl,
-        skipToNextControl
-      ];
+      return [skipToPreviousControl, playControl, skipToNextControl];
     }
   }
 
@@ -179,12 +174,14 @@ class MyAudioTask extends BackgroundAudioTask {
   }
 
   void onAudioFocusLost(AudioInterruption interruption) {
-    print('onAudioFocusLost');
-    print(interruption);
     switch (interruption) {
       case AudioInterruption.pause:
-        _playing = false;
-        _player.pause();
+      case AudioInterruption.temporaryPause:
+      case AudioInterruption.unknownPause:
+        onPause();
+        break;
+      case AudioInterruption.temporaryDuck:
+        _player.setVolume(0.5);
         break;
       default:
     }
@@ -193,15 +190,22 @@ class MyAudioTask extends BackgroundAudioTask {
   @override
   void onPlay() {
     // Broadcast that we're playing, and what controls are available.
+    _playing = true;
+    _player.play();
     AudioServiceBackground.setState(
-      controls: [pauseControl, stopControl],
-      playing: true,
+      controls: [skipToPreviousControl, pauseControl, skipToNextControl],
+      playing: _playing,
       processingState: AudioProcessingState.ready,
       position: _position,
     );
+    // var musicImages = await getImageByMusic(_currentUrl);
+    // if (musicImages.isNotEmpty) {
+    //   _currentImageUrl = musicImages[0].imageUrl;
+    // } else {
+    //   _currentImageUrl = '';
+    // }
+
     // Start playing audio.
-    _playing = true;
-    _player.play();
   }
 
   onSeekTo(Duration position) {
@@ -209,23 +213,40 @@ class MyAudioTask extends BackgroundAudioTask {
   }
 
   @override
-  void onPause() {
+  void onPause() async {
     // Broadcast that we're paused, and what controls are available.
+
+    _playing = false;
+    await _player.pause();
+    sleep(Duration(seconds: 1));
+
     AudioServiceBackground.setState(
-      controls: [playControl, stopControl],
-      playing: false,
+      controls: [skipToPreviousControl, playControl, skipToNextControl],
+      playing: _playing,
       processingState: AudioProcessingState.ready,
       position: _position,
     );
     // Pause the audio.
-    _playing = false;
-    _player.pause();
   }
 
   void onAudioFocusGained(AudioInterruption interruption) {
-    print('onAudioFocusGained');
-    print(interruption);
+    switch (interruption) {
+      case AudioInterruption.temporaryPause:
+        if (!_playing) onPlay();
+        break;
+      case AudioInterruption.temporaryDuck:
+        _player.setVolume(1.0);
+        break;
+      default:
+        break;
+    }
   }
+
+  @override
+  Future<void> onSkipToNext() => _skip();
+
+  @override
+  Future<void> onSkipToPrevious() => _skip(previous: true);
 
   Future<dynamic> onCustomAction(String name, [dynamic arguments]) async {
     switch (name) {
@@ -271,12 +292,16 @@ class MyAudioTask extends BackgroundAudioTask {
         break;
       case 'setCurrentUrl':
         _currentUrl = arguments;
+
         break;
       case 'next':
         _skip();
         break;
       case 'previous':
         _skip(previous: false);
+        break;
+      case 'setCurrentImageUrl':
+        _currentImageUrl = arguments;
         break;
       default:
     }

@@ -26,13 +26,15 @@ class Audio with ChangeNotifier {
 
   Audio() {
     AudioService.playbackStateStream.listen((state) {
-      _position = state.position ?? Duration();
-      if (state.playing) {
-        _playerState = PlayerState.PLAYING;
-      } else {
-        _playerState = PlayerState.PAUSED;
+      if (state != null) {
+        _position = state.position;
+        if (state.playing) {
+          _playerState = PlayerState.PLAYING;
+        } else {
+          _playerState = PlayerState.PAUSED;
+        }
+        notifyListeners();
       }
-      notifyListeners();
     });
     AudioService.currentMediaItemStream.listen((item) {
       if (item != null && item.duration != null) {
@@ -112,13 +114,14 @@ class Audio with ChangeNotifier {
             return _musicList[i].toMap();
           }));
     }
-    initAudioService();
+
     notifyListeners();
   }
 
-  void initAudioService() {
+  Future<void> initAudioService() async {
     AudioService.start(
       backgroundTaskEntrypoint: _backgroundTaskEntrypoint,
+      androidNotificationIcon: 'mipmap/ic_launcher',
       params: {
         'musicList': List.generate(_musicList.length, (i) {
           return _musicList[i].toMap();
@@ -141,6 +144,7 @@ class Audio with ChangeNotifier {
   void stopAndPlay(String url) async {
     _position = Duration(seconds: 0);
     setUrls(url);
+    await initAudioService();
     if (AudioService.running) {
       AudioService.customAction('playNewMusic', _currentUrl);
     }
