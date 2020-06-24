@@ -5,6 +5,7 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/database.dart';
+import 'package:flutter/services.dart';
 
 MediaControl playControl = MediaControl(
   androidIcon: 'drawable/ic_action_play_arrow',
@@ -49,6 +50,13 @@ class MyAudioTask extends BackgroundAudioTask {
   Future<void> onStart(Map<String, dynamic> params) async {
     _musicList = params['musicList'];
 
+    var uri = Uri.dataFromBytes(
+            (await rootBundle.load('assets/images/headphone.jpeg'))
+                .buffer
+                .asUint8List(),
+            percentEncoded: true)
+        .toString();
+
     AudioServiceBackground.setState(
       controls: [pauseControl, stopControl],
       playing: _playing,
@@ -74,19 +82,24 @@ class MyAudioTask extends BackgroundAudioTask {
         processingState: AudioProcessingState.ready,
       );
       var urlList = _currentUrl.split('/');
-      print(_currentImageUrl);
+      var artUri = uri;
+      if (_currentImageUrl != 'assets/images/headphone.jpeg') {
+        artUri = Uri.file(_currentImageUrl).toString();
+      }
+      // print(artUri);
       AudioServiceBackground.setMediaItem(MediaItem(
         id: _currentUrl ?? 'none',
         title: urlList[urlList.length - 1],
         duration: _duration,
         album: 'Unknown album',
-        artUri: _currentImageUrl,
+        artUri: artUri,
       ));
     });
   }
 
   Future<void> playByUrl(url) async {
     _currentUrl = url;
+    setImageUrl(url);
     var urlList = url.split('/');
     _duration = await _player.setUrl(url);
     AudioServiceBackground.setMediaItem(MediaItem(
@@ -103,6 +116,15 @@ class MyAudioTask extends BackgroundAudioTask {
       processingState: AudioProcessingState.ready,
     );
     _player.play();
+  }
+
+  void setImageUrl(url) async {
+    var musicImages = await getImageByMusic(url);
+    if (musicImages.isNotEmpty) {
+      _currentImageUrl = musicImages[0].imageUrl;
+    } else {
+      _currentImageUrl = 'assets/images/headphone.jpeg';
+    }
   }
 
   Future<List<dynamic>> getPlaylistMusics() async {
@@ -192,18 +214,13 @@ class MyAudioTask extends BackgroundAudioTask {
     // Broadcast that we're playing, and what controls are available.
     _playing = true;
     _player.play();
+
     AudioServiceBackground.setState(
       controls: [skipToPreviousControl, pauseControl, skipToNextControl],
       playing: _playing,
       processingState: AudioProcessingState.ready,
       position: _position,
     );
-    // var musicImages = await getImageByMusic(_currentUrl);
-    // if (musicImages.isNotEmpty) {
-    //   _currentImageUrl = musicImages[0].imageUrl;
-    // } else {
-    //   _currentImageUrl = '';
-    // }
 
     // Start playing audio.
   }

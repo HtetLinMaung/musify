@@ -64,6 +64,7 @@ class Audio with ChangeNotifier {
 
   void setCurrentImageUrl(String url) {
     _currentImageUrl = url;
+    AudioService.customAction('setCurrentImageUrl', url);
   }
 
   void setCurrentUrl(String url) {
@@ -119,7 +120,7 @@ class Audio with ChangeNotifier {
   }
 
   Future<void> initAudioService() async {
-    AudioService.start(
+    await AudioService.start(
       backgroundTaskEntrypoint: _backgroundTaskEntrypoint,
       androidNotificationIcon: 'mipmap/ic_launcher',
       params: {
@@ -130,7 +131,7 @@ class Audio with ChangeNotifier {
     );
   }
 
-  void setUrls(String url) async {
+  Future<void> setUrls(String url) async {
     _currentUrl = url;
     var musicImages = await getImageByMusic(_currentUrl);
     if (musicImages.isNotEmpty) {
@@ -143,8 +144,9 @@ class Audio with ChangeNotifier {
 
   void stopAndPlay(String url) async {
     _position = Duration(seconds: 0);
-    setUrls(url);
+    await setUrls(url);
     await initAudioService();
+    print('stopAndPlay $_currentUrl');
     if (AudioService.running) {
       AudioService.customAction('playNewMusic', _currentUrl);
     }
@@ -182,39 +184,6 @@ class Audio with ChangeNotifier {
   void previous() {
     AudioService.customAction('previous');
   }
-
-  // void _skip({bool previous = false}) async {
-  //   var musicList = _musicList;
-  //   var index = musicList.indexOf(getCurrentMusic());
-  //   if (_play == Play.FAVORITE) {
-  //     musicList = getFavorites();
-  //     index = musicList
-  //         .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
-  //   } else if (_play == Play.PLAYLIST) {
-  //     musicList = await getPlaylistMusics();
-  //     index = musicList
-  //         .indexOf(musicList.firstWhere((music) => music.url == _currentUrl));
-  //   }
-  //   if (_trackState == TrackState.LOOP || _trackState == TrackState.REPEAT) {
-  //     if (previous) {
-  //       if (index == 0) {
-  //         index = musicList.length - 1;
-  //       } else {
-  //         index--;
-  //       }
-  //     } else {
-  //       if (index == musicList.length - 1) {
-  //         index = 0;
-  //       } else {
-  //         index++;
-  //       }
-  //     }
-  //   } else if (_trackState == TrackState.SHUFFLE) {
-  //     index = Random().nextInt(musicList.length);
-  //   }
-
-  //   stopAndPlay(musicList[index].url);
-  // }
 
   Future<List<Music>> getPlaylistMusics() async {
     final playlistMusics = await getMusicByPlaylist(_playlist.id);
