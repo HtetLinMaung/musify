@@ -110,7 +110,7 @@ class Audio with ChangeNotifier {
     _musicList = list;
     if (AudioService.running) {
       AudioService.customAction(
-          'setMusicUrl',
+          'setMusicList',
           List.generate(_musicList.length, (i) {
             return _musicList[i].toMap();
           }));
