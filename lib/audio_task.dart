@@ -92,6 +92,7 @@ class MyAudioTask extends BackgroundAudioTask {
         title: urlList[urlList.length - 1],
         duration: _duration,
         album: 'Unknown album',
+        artist: 'Unknown artist',
         artUri: artUri,
       ));
     });

@@ -8,6 +8,7 @@ import 'text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:music_player/database.dart';
+import 'package:music_player/screens/add_music_playlist.dart';
 
 class EditColumn extends StatelessWidget {
   Future<void> _showDeleteDialog(BuildContext context) async {
@@ -89,10 +90,18 @@ class EditColumn extends StatelessWidget {
         ),
         TextButton(
           text: 'Add to',
-          onPressed: () {},
+          onPressed: () => Navigator.pushNamed(
+            context,
+            AddMusicPlaylists.routeName,
+            arguments: context.read <Audio>().currentUrl,
+          ),
         ),
         TextButton(
           text: 'Set as ringtone',
+          onPressed: () {},
+        ),
+        TextButton(
+          text: 'Sleep timer',
           onPressed: () {},
         ),
         TextButton(

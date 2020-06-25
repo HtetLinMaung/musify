@@ -12,6 +12,7 @@ import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'screens/selection_screen.dart';
 import 'package:audio_service/audio_service.dart';
+import 'screens/add_music_playlist.dart';
 
 void main() => runApp(MultiProvider(
       providers: [
@@ -21,8 +22,6 @@ void main() => runApp(MultiProvider(
       ],
       child: AudioServiceWidget(child: MusicPlayer()),
     ));
-
-
 
 class MusicPlayer extends StatelessWidget {
   @override
@@ -41,6 +40,7 @@ class MusicPlayer extends StatelessWidget {
         AddPlaylistMusics.routeName: (context) => AddPlaylistMusics(),
         EditPlaylistScreen.routeName: (context) => EditPlaylistScreen(),
         EditMusicScreen.routeName: (context) => EditMusicScreen(),
+        AddMusicPlaylists.routeName: (context) => AddMusicPlaylists(),
       },
     );
   }

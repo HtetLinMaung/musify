@@ -244,6 +244,20 @@ Future<List<Playlist>> getAllPlaylists() async {
   });
 }
 
+Future<List<PlaylistMusic>> getAllPlaylistMusics() async {
+  final Database db = await database;
+
+  final List<Map<String, dynamic>> maps = await db.query('musics');
+
+  return List.generate(maps.length, (i) {
+    return PlaylistMusic(
+      playlistId: maps[i]['playlistId'],
+      url: maps[i]['url'],
+      id: maps[i]['id'],
+    );
+  });
+}
+
 Future<List<Music>> getAllFavorites() async {
   final Database db = await database;
 

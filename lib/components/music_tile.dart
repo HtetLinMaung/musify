@@ -1,6 +1,4 @@
-import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
-import 'package:music_player/audio_task.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';

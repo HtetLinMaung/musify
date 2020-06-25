@@ -78,7 +78,9 @@ class _SelectionListState extends State<SelectionList> {
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
                     ),
-                    subtitle: Text('Unknown Artist | Unknown Album'),
+                    subtitle: widget.items[i].subTitle != null
+                        ? Text(widget.items[i].subTitle)
+                        : Text('Unknown Artist | Unknown Album'),
                     trailing: CircleCheckbox(
                       checkColor: kPlayerIconColor,
                       checked: widget.items[i].checked,
