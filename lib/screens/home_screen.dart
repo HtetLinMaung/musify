@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/components/shuffle_row.dart';
@@ -13,6 +14,7 @@ import 'package:music_player/components/bottom_navbar.dart';
 import 'package:move_to_background/move_to_background.dart';
 import 'package:music_player/database.dart';
 import 'package:music_player/components/search_field.dart';
+import 'package:flutter/widgets.dart';
 
 class HomeScreen extends StatefulWidget {
   static const routeName = 'HomeScreen';
@@ -21,14 +23,33 @@ class HomeScreen extends StatefulWidget {
   _HomeScreenState createState() => _HomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
+class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
   MusicView _view = MusicView.LIST;
   String _search = '';
 
   @override
+  void didChangeAppLifecycleState(AppLifecycleState state) {
+    final store = context.read<Audio>();
+    if (state == AppLifecycleState.resumed) {
+      var item = AudioService.currentMediaItem;
+      if (item != null && item.duration != null) {
+        store.setDuration(item.duration);
+        store.setUrls(item.id);
+      }
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
+    WidgetsBinding.instance.addObserver(this);
     _getLocalMusic();
+  }
+
+  @override
+  void dispose() {
+    WidgetsBinding.instance.removeObserver(this);
+    super.dispose();
   }
 
   void _getLocalMusic() async {

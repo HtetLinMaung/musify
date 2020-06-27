@@ -36,6 +36,7 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
   void getPlaylists() async {
     var playlists = await getAllPlaylists();
 
+    _counts = [];
     for (var playlist in playlists) {
       var count = (await getMusicByPlaylist(playlist.id)).length;
       _counts.add(count);
@@ -157,10 +158,12 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                           decoration: BoxDecoration(
                                             borderRadius:
                                                 BorderRadius.circular(35),
-                                            image: DecorationImage(
-                                              image: FileImage(_image),
-                                              fit: BoxFit.fill,
-                                            ),
+                                            image: _image.existsSync()
+                                                ? DecorationImage(
+                                                    image: FileImage(_image),
+                                                    fit: BoxFit.fill,
+                                                  )
+                                                : null,
                                           ),
                                           child: Center(
                                             child: FaIcon(
@@ -198,12 +201,12 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                                     ),
                                     color: Color(0xffA376AF),
                                     child: Text('Ok'),
-                                    onPressed: () {
+                                    onPressed: () async {
                                       var playlist = Playlist(
                                         filePath: _image.path,
                                         name: _playlistName,
                                       );
-                                      insertPlaylist(playlist: playlist);
+                                      await insertPlaylist(playlist: playlist);
                                       getPlaylists();
                                       Navigator.pop(context);
                                       clear();
@@ -252,12 +255,14 @@ class _PlaylistScreenState extends State<PlaylistScreen> {
                           child: Container(
                             decoration: BoxDecoration(
                               borderRadius: BorderRadius.circular(25),
-                              image: DecorationImage(
-                                image: FileImage(
-                                  File(_playlists[i].filePath),
-                                ),
-                                fit: BoxFit.fill,
-                              ),
+                              image: _playlists[i].filePath.isNotEmpty
+                                  ? DecorationImage(
+                                      image: FileImage(
+                                        File(_playlists[i].filePath),
+                                      ),
+                                      fit: BoxFit.fill,
+                                    )
+                                  : null,
                             ),
                             child: Center(
                               child: FaIcon(

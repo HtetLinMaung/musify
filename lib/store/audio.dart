@@ -62,6 +62,10 @@ class Audio with ChangeNotifier {
   Playlist get playlist => _playlist;
   String get currentImageUrl => _currentImageUrl;
 
+  void setDuration(Duration d) {
+    _duration = d;
+  }
+
   void setCurrentImageUrl(String url) {
     _currentImageUrl = url;
     AudioService.customAction('setCurrentImageUrl', url);
@@ -146,7 +150,7 @@ class Audio with ChangeNotifier {
     _position = Duration(seconds: 0);
     await setUrls(url);
     await initAudioService();
-    print('stopAndPlay $_currentUrl');
+
     if (AudioService.running) {
       AudioService.customAction('playNewMusic', _currentUrl);
     }

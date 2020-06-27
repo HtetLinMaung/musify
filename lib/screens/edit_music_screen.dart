@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:music_player/components/edit_albumn_layout.dart';
@@ -82,6 +83,17 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
           }
         }).toList());
         File(_musicUrl).rename(musicUrl);
+        var musicItem = AudioService.currentMediaItem;
+        AudioService.customAction(
+          'updateMediaItem',
+          {
+            'id': musicUrl,
+            'title': musicUrlList[musicUrlList.length - 1],
+            'duration': musicItem.duration.inSeconds,
+            'album': musicItem.album,
+            'artUri': Uri.file(_image.path).toString()
+          },
+        );
 
         var musicImage = MusicImage(
           imageUrl: _image.path,

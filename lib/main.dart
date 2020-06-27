@@ -5,6 +5,7 @@ import 'package:music_player/screens/edit_playlist_screen.dart';
 import 'package:music_player/screens/favorite_screen.dart';
 import 'package:music_player/screens/playlist_detail_screen.dart';
 import 'package:music_player/screens/playlist_screen.dart';
+import 'package:music_player/screens/sleep_timer_screen.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:music_player/constant.dart';
@@ -41,6 +42,7 @@ class MusicPlayer extends StatelessWidget {
         EditPlaylistScreen.routeName: (context) => EditPlaylistScreen(),
         EditMusicScreen.routeName: (context) => EditMusicScreen(),
         AddMusicPlaylists.routeName: (context) => AddMusicPlaylists(),
+        SleepTimerScreen.routeName: (context) => SleepTimerScreen(),
       },
     );
   }

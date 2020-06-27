@@ -192,10 +192,12 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                 ),
                 child: Hero(
                   tag: 'image',
-                  child: Image.file(
-                    File(playlist.filePath),
-                    fit: BoxFit.cover,
-                  ),
+                  child: playlist.filePath.isNotEmpty
+                      ? Image.file(
+                          File(playlist.filePath),
+                          fit: BoxFit.cover,
+                        )
+                      : Text(''),
                 ),
               ),
             ),

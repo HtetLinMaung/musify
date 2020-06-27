@@ -70,10 +70,12 @@ class EditAlbumLayout extends StatelessWidget {
                 height: 250,
                 decoration: BoxDecoration(
                   borderRadius: BorderRadius.circular(35),
-                  image: DecorationImage(
-                    image: FileImage(image),
-                    fit: BoxFit.fill,
-                  ),
+                  image: image.existsSync()
+                      ? DecorationImage(
+                          image: FileImage(image),
+                          fit: BoxFit.fill,
+                        )
+                      : null,
                 ),
                 child: Center(
                   child: FaIcon(

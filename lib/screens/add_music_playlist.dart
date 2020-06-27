@@ -32,6 +32,7 @@ class _AddMusicPlaylistsState extends State<AddMusicPlaylists> {
   @override
   Widget build(BuildContext context) {
     return SelectionList(
+      hideSubTitle: true,
       items: List.generate(_playlists.length, (i) {
         return Item(
           checked: false,

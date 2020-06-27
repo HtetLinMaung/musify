@@ -50,12 +50,12 @@ class MyAudioTask extends BackgroundAudioTask {
   Future<void> onStart(Map<String, dynamic> params) async {
     _musicList = params['musicList'];
 
-    var uri = Uri.dataFromBytes(
-            (await rootBundle.load('assets/images/headphone.jpeg'))
-                .buffer
-                .asUint8List(),
-            percentEncoded: true)
-        .toString();
+    // var uri = Uri.dataFromBytes(
+    //         (await rootBundle.load('assets/images/headphone.jpeg'))
+    //             .buffer
+    //             .asUint8List(),
+    //         percentEncoded: true)
+    //     .toString();
 
     AudioServiceBackground.setState(
       controls: [pauseControl, stopControl],
@@ -81,20 +81,20 @@ class MyAudioTask extends BackgroundAudioTask {
         playing: _playing,
         processingState: AudioProcessingState.ready,
       );
-      var urlList = _currentUrl.split('/');
-      var artUri = uri;
-      if (_currentImageUrl != 'assets/images/headphone.jpeg') {
-        artUri = Uri.file(_currentImageUrl).toString();
-      }
+      // var urlList = _currentUrl.split('/');
+      // var artUri = uri;
+      // if (_currentImageUrl != 'assets/images/headphone.jpeg') {
+      //   artUri = Uri.file(_currentImageUrl).toString();
+      // }
       // print(artUri);
-      AudioServiceBackground.setMediaItem(MediaItem(
-        id: _currentUrl ?? 'none',
-        title: urlList[urlList.length - 1],
-        duration: _duration,
-        album: 'Unknown album',
-        artist: 'Unknown artist',
-        artUri: artUri,
-      ));
+      // AudioServiceBackground.setMediaItem(MediaItem(
+      //   id: _currentUrl ?? 'none',
+      //   title: urlList[urlList.length - 1],
+      //   duration: _duration,
+      //   album: 'Unknown album',
+      //   artist: 'Unknown artist',
+      //   artUri: artUri,
+      // ));
     });
   }
 
@@ -108,7 +108,7 @@ class MyAudioTask extends BackgroundAudioTask {
       title: urlList[urlList.length - 1],
       duration: _duration,
       album: 'Unknown album',
-      artUri: _currentImageUrl,
+      artUri: Uri.file(_currentImageUrl).toString(),
     ));
     _playing = true;
     AudioServiceBackground.setState(
@@ -310,7 +310,6 @@ class MyAudioTask extends BackgroundAudioTask {
         break;
       case 'setCurrentUrl':
         _currentUrl = arguments;
-
         break;
       case 'next':
         _skip();
@@ -320,6 +319,16 @@ class MyAudioTask extends BackgroundAudioTask {
         break;
       case 'setCurrentImageUrl':
         _currentImageUrl = arguments;
+        break;
+      case 'updateMediaItem':
+        print(arguments);
+        AudioServiceBackground.setMediaItem(MediaItem(
+          id: arguments['id'],
+          title: arguments['title'],
+          duration: Duration(seconds: arguments['duration']),
+          album: arguments['album'],
+          artUri: arguments['artUri'],
+        ));
         break;
       default:
     }

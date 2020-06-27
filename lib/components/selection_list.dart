@@ -7,10 +7,12 @@ class SelectionList extends StatefulWidget {
   SelectionList({
     @required this.items,
     @required this.onPressedSave,
+    this.hideSubTitle = false,
   });
 
   final List<Item> items;
   final Function(List<Item> checkedList) onPressedSave;
+  final bool hideSubTitle;
 
   @override
   _SelectionListState createState() => _SelectionListState();
@@ -78,9 +80,11 @@ class _SelectionListState extends State<SelectionList> {
                       overflow: TextOverflow.ellipsis,
                       softWrap: false,
                     ),
-                    subtitle: widget.items[i].subTitle != null
-                        ? Text(widget.items[i].subTitle)
-                        : Text('Unknown Artist | Unknown Album'),
+                    subtitle: !widget.hideSubTitle
+                        ? widget.items[i].subTitle != null
+                            ? Text(widget.items[i].subTitle)
+                            : Text('Unknown Artist | Unknown Album')
+                        : null,
                     trailing: CircleCheckbox(
                       checkColor: kPlayerIconColor,
                       checked: widget.items[i].checked,

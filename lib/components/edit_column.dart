@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/screens/edit_music_screen.dart';
 import 'package:music_player/screens/home_screen.dart';
+import 'package:music_player/screens/sleep_timer_screen.dart';
 import 'text_button.dart';
 import 'package:provider/provider.dart';
 import 'package:music_player/store/audio.dart';
@@ -93,7 +94,7 @@ class EditColumn extends StatelessWidget {
           onPressed: () => Navigator.pushNamed(
             context,
             AddMusicPlaylists.routeName,
-            arguments: context.read <Audio>().currentUrl,
+            arguments: context.read<Audio>().currentUrl,
           ),
         ),
         TextButton(
@@ -102,7 +103,10 @@ class EditColumn extends StatelessWidget {
         ),
         TextButton(
           text: 'Sleep timer',
-          onPressed: () {},
+          onPressed: () {
+            Navigator.pop(context);
+            Navigator.pushNamed(context, SleepTimerScreen.routeName);
+          },
         ),
         TextButton(
           text: 'Delete',
