@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/components/shuffle_row.dart';
 import 'package:music_player/store/audio.dart';
@@ -35,6 +36,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
       if (item != null && item.duration != null) {
         store.setDuration(item.duration);
         store.setUrls(item.id);
+      }
+      if (!AudioService.running) {
+        store.setCurrentUrl('');
+        Navigator.popAndPushNamed(context, HomeScreen.routeName);
       }
     }
   }

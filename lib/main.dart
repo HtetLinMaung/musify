@@ -14,14 +14,18 @@ import 'package:music_player/screens/player_screen.dart';
 import 'screens/selection_screen.dart';
 import 'package:audio_service/audio_service.dart';
 import 'screens/add_music_playlist.dart';
+import 'screens/remove_music_playlist.dart';
+import 'package:flutter_phoenix/flutter_phoenix.dart';
 
-void main() => runApp(MultiProvider(
-      providers: [
-        ChangeNotifierProvider(
-          create: (_) => Audio(),
-        )
-      ],
-      child: AudioServiceWidget(child: MusicPlayer()),
+void main() => runApp(Phoenix(
+      child: MultiProvider(
+        providers: [
+          ChangeNotifierProvider(
+            create: (_) => Audio(),
+          )
+        ],
+        child: AudioServiceWidget(child: MusicPlayer()),
+      ),
     ));
 
 class MusicPlayer extends StatelessWidget {
@@ -43,6 +47,7 @@ class MusicPlayer extends StatelessWidget {
         EditMusicScreen.routeName: (context) => EditMusicScreen(),
         AddMusicPlaylists.routeName: (context) => AddMusicPlaylists(),
         SleepTimerScreen.routeName: (context) => SleepTimerScreen(),
+        RemoveMusicPlaylists.routeName: (context) => RemoveMusicPlaylists()
       },
     );
   }

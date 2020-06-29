@@ -5,7 +5,6 @@ import 'package:audio_service/audio_service.dart';
 import 'package:just_audio/just_audio.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/database.dart';
-import 'package:flutter/services.dart';
 
 MediaControl playControl = MediaControl(
   androidIcon: 'drawable/ic_action_play_arrow',
@@ -44,18 +43,12 @@ class MyAudioTask extends BackgroundAudioTask {
   String _currentUrl = '';
   Map<dynamic, dynamic> _playlist = {};
   String _currentImageUrl = '';
+  bool _userPause = false;
 
   // Initialise your audio task
   @override
   Future<void> onStart(Map<String, dynamic> params) async {
     _musicList = params['musicList'];
-
-    // var uri = Uri.dataFromBytes(
-    //         (await rootBundle.load('assets/images/headphone.jpeg'))
-    //             .buffer
-    //             .asUint8List(),
-    //         percentEncoded: true)
-    //     .toString();
 
     AudioServiceBackground.setState(
       controls: [pauseControl, stopControl],
@@ -81,24 +74,11 @@ class MyAudioTask extends BackgroundAudioTask {
         playing: _playing,
         processingState: AudioProcessingState.ready,
       );
-      // var urlList = _currentUrl.split('/');
-      // var artUri = uri;
-      // if (_currentImageUrl != 'assets/images/headphone.jpeg') {
-      //   artUri = Uri.file(_currentImageUrl).toString();
-      // }
-      // print(artUri);
-      // AudioServiceBackground.setMediaItem(MediaItem(
-      //   id: _currentUrl ?? 'none',
-      //   title: urlList[urlList.length - 1],
-      //   duration: _duration,
-      //   album: 'Unknown album',
-      //   artist: 'Unknown artist',
-      //   artUri: artUri,
-      // ));
     });
   }
 
   Future<void> playByUrl(url) async {
+    _userPause = false;
     _currentUrl = url;
     setImageUrl(url);
     var urlList = url.split('/');
@@ -179,9 +159,19 @@ class MyAudioTask extends BackgroundAudioTask {
 
   List<MediaControl> getControls() {
     if (_playing) {
-      return [skipToPreviousControl, pauseControl, skipToNextControl];
+      return [
+        skipToPreviousControl,
+        pauseControl,
+        skipToNextControl,
+        stopControl
+      ];
     } else {
-      return [skipToPreviousControl, playControl, skipToNextControl];
+      return [
+        skipToPreviousControl,
+        playControl,
+        skipToNextControl,
+        stopControl
+      ];
     }
   }
 
@@ -190,6 +180,8 @@ class MyAudioTask extends BackgroundAudioTask {
   Future<void> onStop() async {
     // Stop playing audio
     _playing = false;
+    AudioServiceBackground.sendCustomEvent('stopApp');
+
     await _player.stop();
 
     // Shut down this background task
@@ -217,7 +209,7 @@ class MyAudioTask extends BackgroundAudioTask {
     _player.play();
 
     AudioServiceBackground.setState(
-      controls: [skipToPreviousControl, pauseControl, skipToNextControl],
+      controls: getControls(),
       playing: _playing,
       processingState: AudioProcessingState.ready,
       position: _position,
@@ -236,10 +228,11 @@ class MyAudioTask extends BackgroundAudioTask {
 
     _playing = false;
     await _player.pause();
+    _userPause = true;
     sleep(Duration(seconds: 1));
 
     AudioServiceBackground.setState(
-      controls: [skipToPreviousControl, playControl, skipToNextControl],
+      controls: getControls(),
       playing: _playing,
       processingState: AudioProcessingState.ready,
       position: _position,
@@ -250,7 +243,7 @@ class MyAudioTask extends BackgroundAudioTask {
   void onAudioFocusGained(AudioInterruption interruption) {
     switch (interruption) {
       case AudioInterruption.temporaryPause:
-        if (!_playing) onPlay();
+        if (!_playing && !_userPause) onPlay();
         break;
       case AudioInterruption.temporaryDuck:
         _player.setVolume(1.0);
@@ -321,7 +314,6 @@ class MyAudioTask extends BackgroundAudioTask {
         _currentImageUrl = arguments;
         break;
       case 'updateMediaItem':
-        print(arguments);
         AudioServiceBackground.setMediaItem(MediaItem(
           id: arguments['id'],
           title: arguments['title'],
@@ -330,6 +322,7 @@ class MyAudioTask extends BackgroundAudioTask {
           artUri: arguments['artUri'],
         ));
         break;
+
       default:
     }
 

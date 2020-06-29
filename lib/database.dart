@@ -91,6 +91,18 @@ Future<void> deleteMusicByPlaylist({
   );
 }
 
+Future<void> deleteMusicById({
+  int id,
+}) async {
+  final db = await database;
+
+  await db.delete(
+    'musics',
+    where: "id = ?",
+    whereArgs: [id],
+  );
+}
+
 Future<void> updateImageByMusic(
     {MusicImage musicImage, String musicUrl}) async {
   final db = await database;

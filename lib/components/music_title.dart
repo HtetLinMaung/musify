@@ -9,12 +9,14 @@ class MusicTitle extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<Audio>();
+
     return Padding(
       padding: const EdgeInsets.symmetric(
         horizontal: 15.0,
       ),
       child: Text(
-        context.watch<Audio>().getCurrentMusic().title,
+        store.currentUrl.isNotEmpty ? store.getCurrentMusic().title : '',
         style: TextStyle(
           fontSize: 24.0,
         ),

@@ -2,6 +2,7 @@ import 'dart:math';
 
 import 'package:audio_service/audio_service.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:music_player/audio_task.dart';
 import 'package:music_player/database.dart';
 import 'package:music_player/models/music.dart';
@@ -48,6 +49,8 @@ class Audio with ChangeNotifier {
         _playerState = PlayerState.COMPLETED;
       } else if (event.startsWith('changeTrack')) {
         setUrls(event.split(':')[1]);
+      } else if (event == 'stopApp') {
+        SystemNavigator.pop();
       }
     });
   }

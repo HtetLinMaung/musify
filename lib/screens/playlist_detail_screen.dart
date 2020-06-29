@@ -11,6 +11,7 @@ import 'package:music_player/models/playlist_music.dart';
 import 'package:music_player/screens/add_playlist_musics.dart';
 import 'package:music_player/screens/edit_playlist_screen.dart';
 import 'package:music_player/screens/playlist_screen.dart';
+import 'package:music_player/screens/remove_music_playlist.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:provider/provider.dart';
 
@@ -221,6 +222,16 @@ class _PlaylistDetailScreenState extends State<PlaylistDetailScreen> {
                                   Navigator.pushNamed(
                                     context,
                                     AddPlaylistMusics.routeName,
+                                  );
+                                },
+                              ),
+                              TextButton(
+                                text: 'Remove from Playlist',
+                                onPressed: () {
+                                  Navigator.pop(context);
+                                  Navigator.pushNamed(
+                                    context,
+                                    RemoveMusicPlaylists.routeName,
                                   );
                                 },
                               ),
