@@ -12,6 +12,10 @@ import 'package:music_player/database.dart';
 import 'package:music_player/screens/add_music_playlist.dart';
 
 class EditColumn extends StatelessWidget {
+  final String url;
+
+  EditColumn({this.url = ''});
+
   Future<void> _showDeleteDialog(BuildContext context) async {
     return showDialog<void>(
       context: context,
@@ -51,19 +55,28 @@ class EditColumn extends StatelessWidget {
                   ),
                   color: Color(0xffA376AF),
                   child: Text('Yes'),
-                  onPressed: () {
+                  onPressed: () async {
                     final store = context.read<Audio>();
-                    var musicUrl = store.getCurrentMusic().url;
+                    var musicUrl = store.currentUrl;
+                    if (url.isNotEmpty) {
+                      musicUrl = url;
+                    }
                     store.setPlay(Play.NONE);
-                    store.next();
+                    store.setForceHideBottomNavBar(true);
+                    if (url == store.currentUrl || url.isEmpty) {
+                      store.setCurrentUrl(url: '', sync: false);
+                      if (store.playerState == PlayerState.PLAYING) {
+                        store.next();
+                      }
+                    }
                     store.setMusicList(store.musicList
                         .where((music) => music.url != musicUrl)
                         .toList());
 
                     File(musicUrl).delete();
-                    deleteImageByMusic(musicUrl: musicUrl);
-                    Navigator.of(context).pop();
-                    Navigator.pushNamed(context, HomeScreen.routeName);
+                    await deleteImageByMusic(musicUrl: musicUrl);
+                    store.setForceHideBottomNavBar(false);
+                    Navigator.popAndPushNamed(context, HomeScreen.routeName);
                   },
                 ),
               ],
@@ -76,12 +89,17 @@ class EditColumn extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<Audio>();
+    final urlList = url.split('/');
+
     return Column(
       mainAxisAlignment: MainAxisAlignment.spaceBetween,
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: <Widget>[
         Text(
-          context.watch<Audio>().getCurrentMusic().title,
+          store.currentUrl.isNotEmpty
+              ? store.getCurrentMusic().title
+              : urlList[urlList.length - 1],
           textAlign: TextAlign.center,
           overflow: TextOverflow.ellipsis,
           style: TextStyle(
@@ -94,7 +112,7 @@ class EditColumn extends StatelessWidget {
           onPressed: () => Navigator.pushNamed(
             context,
             AddMusicPlaylists.routeName,
-            arguments: context.read<Audio>().currentUrl,
+            arguments: url ?? context.read<Audio>().currentUrl,
           ),
         ),
         TextButton(
@@ -121,8 +139,14 @@ class EditColumn extends StatelessWidget {
         ),
         TextButton(
           text: 'Edit',
-          onPressed: () =>
-              Navigator.pushNamed(context, EditMusicScreen.routeName),
+          onPressed: () async {
+            if (url.isNotEmpty) {
+              final store = context.read<Audio>();
+              store.setCurrentUrl(url: url, sync: false);
+              store.setEditHome(true);
+            }
+            Navigator.popAndPushNamed(context, EditMusicScreen.routeName);
+          },
         ),
       ],
     );

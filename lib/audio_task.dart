@@ -43,7 +43,6 @@ class MyAudioTask extends BackgroundAudioTask {
   String _currentUrl = '';
   Map<dynamic, dynamic> _playlist = {};
   String _currentImageUrl = '';
-  bool _userPause = false;
 
   // Initialise your audio task
   @override
@@ -78,7 +77,6 @@ class MyAudioTask extends BackgroundAudioTask {
   }
 
   Future<void> playByUrl(url) async {
-    _userPause = false;
     _currentUrl = url;
     setImageUrl(url);
     var urlList = url.split('/');
@@ -228,7 +226,7 @@ class MyAudioTask extends BackgroundAudioTask {
 
     _playing = false;
     await _player.pause();
-    _userPause = true;
+    
     sleep(Duration(seconds: 1));
 
     AudioServiceBackground.setState(
@@ -243,7 +241,7 @@ class MyAudioTask extends BackgroundAudioTask {
   void onAudioFocusGained(AudioInterruption interruption) {
     switch (interruption) {
       case AudioInterruption.temporaryPause:
-        if (!_playing && !_userPause) onPlay();
+        if (!_playing) onPlay();
         break;
       case AudioInterruption.temporaryDuck:
         _player.setVolume(1.0);

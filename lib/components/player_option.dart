@@ -68,6 +68,7 @@ class PlayerOption extends StatelessWidget {
             icon: Icon(
               Icons.favorite,
               color: store.currentUrl.isNotEmpty &&
+                      !store.forceHideBottomNavBar &&
                       store.getCurrentMusic().favorite
                   ? kFavColor
                   : kPlayerIconColor,

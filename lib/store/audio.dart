@@ -24,6 +24,8 @@ class Audio with ChangeNotifier {
   bool _muted = false;
   Playlist _playlist;
   String _currentImageUrl = '';
+  bool _forceHideBottomNavBar = false;
+  bool _editHome = false;
 
   Audio() {
     AudioService.playbackStateStream.listen((state) {
@@ -64,6 +66,16 @@ class Audio with ChangeNotifier {
   String get currentUrl => _currentUrl;
   Playlist get playlist => _playlist;
   String get currentImageUrl => _currentImageUrl;
+  bool get forceHideBottomNavBar => _forceHideBottomNavBar;
+  bool get editHome => _editHome;
+
+  setEditHome(bool v) {
+    _editHome = v;
+  }
+
+  setForceHideBottomNavBar(bool b) {
+    _forceHideBottomNavBar = b;
+  }
 
   void setDuration(Duration d) {
     _duration = d;
@@ -74,8 +86,8 @@ class Audio with ChangeNotifier {
     AudioService.customAction('setCurrentImageUrl', url);
   }
 
-  void setCurrentUrl(String url) {
-    AudioService.customAction('setCurrentUrl', url);
+  void setCurrentUrl({String url, bool sync = true}) {
+    if (sync) AudioService.customAction('setCurrentUrl', url);
     _currentUrl = url;
   }
 
@@ -159,8 +171,8 @@ class Audio with ChangeNotifier {
     }
   }
 
-  void pause() {
-    AudioService.pause();
+  Future<void> pause() {
+    return AudioService.pause();
   }
 
   Future<void> resume() {

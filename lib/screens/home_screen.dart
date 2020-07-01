@@ -38,7 +38,7 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         store.setUrls(item.id);
       }
       if (!AudioService.running) {
-        store.setCurrentUrl('');
+        store.setCurrentUrl(url: '');
         Navigator.popAndPushNamed(context, HomeScreen.routeName);
       }
     }
@@ -152,7 +152,10 @@ class _HomeScreenState extends State<HomeScreen> with WidgetsBindingObserver {
         ),
         floatingActionButton:
             store.currentUrl.isEmpty ? null : FloatingButton(),
-        bottomNavigationBar: store.currentUrl.isEmpty ? null : BottomNavbar(),
+        bottomNavigationBar:
+            store.currentUrl.isEmpty || store.forceHideBottomNavBar
+                ? null
+                : BottomNavbar(),
         floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
       ),
     );

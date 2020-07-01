@@ -10,6 +10,8 @@ import 'package:marquee/marquee.dart';
 class BottomNavbar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<Audio>();
+
     return BottomAppBar(
       color: kBackgroundColor,
       child: GestureDetector(
@@ -31,7 +33,9 @@ class BottomNavbar extends StatelessWidget {
               PrevButton(),
               Expanded(
                 child: Marquee(
-                  text: context.watch<Audio>().getCurrentMusic().title,
+                  text: store.currentUrl.isNotEmpty
+                      ? store.getCurrentMusic().title
+                      : '',
                   velocity: 25.0,
                   style: TextStyle(
                     color: Color(0xffEBE2F4),

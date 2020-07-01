@@ -7,6 +7,8 @@ import 'package:music_player/components/music_title.dart';
 import 'package:music_player/components/album_cover.dart';
 import 'package:music_player/components/player_control.dart';
 import 'package:music_player/screens/home_screen.dart';
+import 'package:music_player/store/audio.dart';
+import 'package:provider/provider.dart';
 
 class PlayerScreen extends StatefulWidget {
   static const routeName = 'PlayerScreen';
@@ -18,6 +20,7 @@ class PlayerScreen extends StatefulWidget {
 class _PlayerScreenState extends State<PlayerScreen> {
   @override
   Widget build(BuildContext context) {
+    final store = context.watch<Audio>();
     SystemChrome.setPreferredOrientations([
       DeviceOrientation.portraitUp,
       DeviceOrientation.portraitDown,

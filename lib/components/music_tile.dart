@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:music_player/components/edit_column.dart';
+import 'package:music_player/components/modal_sheet.dart';
 import 'package:music_player/constant.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
@@ -26,6 +28,19 @@ class MusicTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return ListTile(
+      onLongPress: () {
+        showModalBottomSheet(
+          context: context,
+          builder: (BuildContext context) {
+            return ModalSheet(
+              child: EditColumn(
+                url: musicUrl,
+              ),
+              height: 300,
+            );
+          },
+        );
+      },
       leading: CircleAvatar(
         backgroundColor: Color(0xff3C225C),
         child: FaIcon(

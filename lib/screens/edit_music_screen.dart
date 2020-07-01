@@ -8,6 +8,7 @@ import 'package:music_player/database.dart';
 import 'package:music_player/models/music.dart';
 import 'package:music_player/models/music_image.dart';
 import 'package:music_player/models/playlist_music.dart';
+import 'package:music_player/screens/home_screen.dart';
 import 'package:music_player/screens/player_screen.dart';
 import 'package:music_player/store/audio.dart';
 import 'package:permission_handler/permission_handler.dart';
@@ -56,7 +57,21 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
     return EditAlbumLayout(
       controller2: _albumNameController,
       appBarTitle: 'Edit Music',
-      backPressed: () => Navigator.pushNamed(context, PlayerScreen.routeName),
+      backPressed: () {
+        final store = context.read<Audio>();
+        if (store.editHome) {
+          store.setEditHome(false);
+          if (!AudioService.running)
+            store.setCurrentUrl(url: '', sync: false);
+          else {
+            final mediaItem = AudioService.currentMediaItem;
+            store.setCurrentUrl(url: mediaItem.id, sync: false);
+          }
+          Navigator.pushNamed(context, HomeScreen.routeName);
+        } else {
+          Navigator.pushNamed(context, PlayerScreen.routeName);
+        }
+      },
       controller: _musicNameController,
       hintText: 'Edit music name',
       hintText2: 'Edit album name',
@@ -69,7 +84,7 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
         var musicUrlList = _musicUrl.split('/');
         musicUrlList[musicUrlList.length - 1] = _musicNameController.text;
         var musicUrl = musicUrlList.join('/');
-        store.setCurrentUrl(musicUrl);
+        store.setCurrentUrl(url: musicUrl);
         store.setCurrentImageUrl(_image.path);
         store.setMusicList(store.musicList.map((music) {
           if (music.url == _musicUrl) {
@@ -146,7 +161,12 @@ class _EditMusicScreenState extends State<EditMusicScreen> {
           }
         }
 
-        Navigator.pushNamed(context, PlayerScreen.routeName);
+        if (!store.editHome)
+          Navigator.pushNamed(context, PlayerScreen.routeName);
+        else {
+          store.setEditHome(false);
+          Navigator.pushNamed(context, HomeScreen.routeName);
+        }
       },
       onTapImage: () async {
         if (await Permission.storage.request().isGranted) {
