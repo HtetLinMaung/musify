@@ -226,7 +226,7 @@ class MyAudioTask extends BackgroundAudioTask {
 
     _playing = false;
     await _player.pause();
-    
+
     sleep(Duration(seconds: 1));
 
     AudioServiceBackground.setState(

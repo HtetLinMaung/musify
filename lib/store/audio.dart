@@ -68,6 +68,7 @@ class Audio with ChangeNotifier {
   String get currentImageUrl => _currentImageUrl;
   bool get forceHideBottomNavBar => _forceHideBottomNavBar;
   bool get editHome => _editHome;
+  Play get play => _play;
 
   setEditHome(bool v) {
     _editHome = v;
